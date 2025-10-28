@@ -14,8 +14,16 @@ def migrate_database():
     
     try:
         with app.app_context():
-            # Get the database path
-            db_path = app.config['SQLALCHEMY_DATABASE_URI'].replace('sqlite:///', '')
+            # Get the database path - handle different SQLite URL formats
+            db_uri = app.config['SQLALCHEMY_DATABASE_URI']
+            if db_uri.startswith('sqlite:///'):
+                db_path = db_uri.replace('sqlite:///', '')
+            elif db_uri.startswith('sqlite://'):
+                db_path = db_uri.replace('sqlite://', '')
+            else:
+                # For other database types, we can't migrate directly
+                print(f"⚠️  Database type not supported for migration: {db_uri}")
+                return True
             
             if not os.path.exists(db_path):
                 print(f"📁 Creating database at: {db_path}")
@@ -59,7 +67,19 @@ def migrate_database():
             
             if 'gallery_images' in project_columns:
                 print("✅ Column 'gallery_images' already exists in the project table")
+            
+            # Check if the last_login column exists in user table
+            cursor.execute("PRAGMA table_info(user)")
+            user_columns = [column[1] for column in cursor.fetchall()]
+            
+            if 'last_login' in user_columns:
+                print("✅ Column 'last_login' already exists in the user table")
             else:
+                print("🔧 Adding 'last_login' column to user table...")
+                cursor.execute("ALTER TABLE user ADD COLUMN last_login DATETIME")
+                print("✅ Successfully added 'last_login' column to the user table")
+            
+            if 'gallery_images' not in project_columns:
                 print("🔧 Adding 'gallery_images' column to project table...")
                 # Add the gallery_images column with default value NULL
                 cursor.execute("ALTER TABLE project ADD COLUMN gallery_images TEXT")

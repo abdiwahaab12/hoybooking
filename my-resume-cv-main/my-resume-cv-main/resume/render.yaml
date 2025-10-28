@@ -2,8 +2,10 @@ services:
   - type: web
     name: my-resume-cv
     env: python
-    buildCommand: pip install -r FolioOne/requirements.txt
-    startCommand: python FolioOne/deploy.py
+    buildCommand: pip install -r requirements.txt
+    startCommand: python deploy.py
     envVars:
       - key: SECRET_KEY
         generateValue: true
+      - key: DATABASE_URL
+        value: sqlite:///instance/resume_db.db

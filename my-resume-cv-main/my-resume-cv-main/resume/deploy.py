@@ -26,6 +26,11 @@ def main():
     else:
         print(f"🔍 Using provided DATABASE_URL: {os.environ.get('DATABASE_URL')}")
     
+    # Ensure the instance directory exists for the database
+    instance_dir = 'instance'
+    os.makedirs(instance_dir, exist_ok=True)
+    print(f"📁 Instance directory ensured: {instance_dir}")
+    
     # Run database migration
     print("🔄 Running database migration...")
     try:
