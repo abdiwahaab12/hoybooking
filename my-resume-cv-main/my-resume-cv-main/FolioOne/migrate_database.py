@@ -18,6 +18,12 @@ def migrate_database():
             db_uri = app.config['SQLALCHEMY_DATABASE_URI']
             print(f"🔍 Database URI: {db_uri}")
             
+            # Check if the URI is valid
+            if not db_uri or 'SECRET_KEY' in db_uri:
+                print("⚠️  Invalid database URI detected, using fallback")
+                db_uri = 'sqlite:///instance/resume_db.db'
+                print(f"🔍 Using fallback URI: {db_uri}")
+            
             # Handle different SQLite URL formats
             if db_uri.startswith('sqlite:///'):
                 db_path = db_uri.replace('sqlite:///', '')

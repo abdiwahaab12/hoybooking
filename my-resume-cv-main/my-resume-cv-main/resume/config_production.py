@@ -9,10 +9,10 @@ class ProductionConfig:
         # Convert postgres:// to postgresql:// for newer versions
         database_url = database_url.replace('postgres://', 'postgresql://', 1)
         SQLALCHEMY_DATABASE_URI = database_url
-    elif database_url:
+    elif database_url and not 'SECRET_KEY' in database_url and database_url.startswith(('sqlite:', 'postgresql:', 'postgres:', 'mysql:')):
         SQLALCHEMY_DATABASE_URI = database_url
     else:
-        # Fallback to SQLite for local development
+        # Fallback to SQLite for local development or when DATABASE_URL is invalid
         SQLALCHEMY_DATABASE_URI = 'sqlite:///instance/resume_db.db'
     
     SQLALCHEMY_TRACK_MODIFICATIONS = False
