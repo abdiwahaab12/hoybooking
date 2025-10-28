@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Resume - Portfolio{% endblock %}
+{% block body_class %}resume-page{% endblock %}
+
+{% block content %}
+<!-- Resume Section -->
+<section id="resume" class="resume section">
+  <div class="container section-title" data-aos="fade-up">
+    <h2>Resume</h2>
+    <p>Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium totam rem aperiam</p>
+  </div>
+
+  <div class="container" data-aos="fade-up" data-aos-delay="100">
+    <div class="row">
+      <div class="col-lg-6">
+        <!-- Education Section -->
+        {% if educations %}
+        <div class="resume-item" data-aos="fade-up">
+          <h3 class="resume-title">Education</h3>
+          <div class="resume-content">
+            {% for education in educations %}
+            <article class="education-item">
+              <h4>{{ education.degree }}</h4>
+              <h5>{{ education.start_date.year }} - {% if education.current %}Present{% else %}{{ education.end_date.year }}{% endif %}</h5>
+              <p class="institution"><em>{{ education.institution }}{% if education.location %}, {{ education.location }}{% endif %}</em></p>
+              {% if education.description %}
+              <p>{{ education.description }}</p>
+              {% endif %}
+              {% if education.gpa %}
+              <p><strong>GPA:</strong> {{ education.gpa }}</p>
+              {% endif %}
+            </article>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Professional Skills Section -->
+        {% if skills %}
+        <div class="resume-item skills-animation" data-aos="fade-up">
+          <h3 class="resume-title">Professional Skills</h3>
+          <div class="resume-content">
+            {% for skill in skills[:4] %}
+            <div class="skill-item">
+              <h4>{{ skill.name }}</h4>
+              <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="{{ skill.proficiency }}" aria-valuemin="0" aria-valuemax="100"></div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="col-lg-6">
+        <!-- Experience Section -->
+        {% if experiences %}
+        <div class="resume-item" data-aos="fade-up" data-aos-delay="100">
+          <h3 class="resume-title">Professional Experience</h3>
+          <div class="resume-content">
+            {% for experience in experiences %}
+            <article class="experience-item">
+              <h4>{{ experience.title }}</h4>
+              <h5>{{ experience.start_date.strftime('%Y') }} - {% if experience.current %}Present{% else %}{{ experience.end_date.strftime('%Y') }}{% endif %}</h5>
+              <p class="company"><em>{{ experience.company }}{% if experience.location %}, {{ experience.location }}{% endif %}</em></p>
+              {% if experience.description %}
+              <p>{{ experience.description }}</p>
+              {% endif %}
+              {% if experience.achievements %}
+              <ul>
+                {% for achievement in experience.achievements %}
+                <li>{{ achievement }}</li>
+                {% endfor %}
+              </ul>
+              {% endif %}
+            </article>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

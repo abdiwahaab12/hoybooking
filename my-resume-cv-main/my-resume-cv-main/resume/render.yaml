@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: my-resume-cv
+    env: python
+    buildCommand: pip install -r FolioOne/requirements.txt
+    startCommand: python FolioOne/deploy.py
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
