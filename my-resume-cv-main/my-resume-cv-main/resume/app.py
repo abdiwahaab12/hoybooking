@@ -29,6 +29,7 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(120), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    last_login = db.Column(db.DateTime)
 
 class Project(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -201,6 +202,10 @@ def admin_login_post():
     user = User.query.filter_by(username=username).first()
     
     if user and check_password_hash(user.password_hash, password):
+        # Update last login time
+        user.last_login = datetime.utcnow()
+        db.session.commit()
+        
         session['admin_logged_in'] = True
         session['admin_user'] = user.username
         return redirect(url_for('admin_dashboard'))
@@ -541,6 +546,155 @@ def api_clear_all_messages():
     db.session.commit()
     
     return jsonify({'message': 'All messages cleared successfully'})
+
+# User Management API Routes
+@app.route('/api/users', methods=['GET'])
+def api_users():
+    if 'admin_logged_in' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    users = User.query.all()
+    return jsonify([{
+        'id': user.id,
+        'username': user.username,
+        'email': user.email,
+        'created_at': user.created_at.isoformat() if user.created_at else None,
+        'last_login': user.last_login.isoformat() if user.last_login else None
+    } for user in users])
+
+@app.route('/api/users', methods=['POST'])
+def api_create_user():
+    if 'admin_logged_in' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    data = request.get_json()
+    username = data.get('username')
+    email = data.get('email')
+    password = data.get('password')
+    
+    # Check if user already exists
+    if User.query.filter_by(username=username).first():
+        return jsonify({'error': 'Username already exists'}), 400
+    
+    if User.query.filter_by(email=email).first():
+        return jsonify({'error': 'Email already exists'}), 400
+    
+    # Create new user
+    user = User(
+        username=username,
+        email=email,
+        password_hash=generate_password_hash(password)
+    )
+    
+    db.session.add(user)
+    db.session.commit()
+    
+    return jsonify({'message': 'User created successfully', 'id': user.id})
+
+@app.route('/api/users/<int:user_id>', methods=['GET'])
+def api_get_user(user_id):
+    if 'admin_logged_in' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    user = User.query.get_or_404(user_id)
+    return jsonify({
+        'id': user.id,
+        'username': user.username,
+        'email': user.email,
+        'created_at': user.created_at.isoformat() if user.created_at else None,
+        'last_login': user.last_login.isoformat() if user.last_login else None
+    })
+
+@app.route('/api/users/<int:user_id>', methods=['PUT'])
+def api_update_user(user_id):
+    if 'admin_logged_in' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    user = User.query.get_or_404(user_id)
+    data = request.get_json()
+    
+    # Update user fields
+    if 'username' in data:
+        # Check if username is already taken by another user
+        existing_user = User.query.filter_by(username=data['username']).first()
+        if existing_user and existing_user.id != user_id:
+            return jsonify({'error': 'Username already exists'}), 400
+        user.username = data['username']
+    
+    if 'email' in data:
+        # Check if email is already taken by another user
+        existing_user = User.query.filter_by(email=data['email']).first()
+        if existing_user and existing_user.id != user_id:
+            return jsonify({'error': 'Email already exists'}), 400
+        user.email = data['email']
+    
+    if 'password' in data and data['password']:
+        user.password_hash = generate_password_hash(data['password'])
+    
+    db.session.commit()
+    
+    return jsonify({'message': 'User updated successfully'})
+
+@app.route('/api/users/<int:user_id>', methods=['DELETE'])
+def api_delete_user(user_id):
+    if 'admin_logged_in' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    user = User.query.get_or_404(user_id)
+    
+    # Prevent deleting the current admin user
+    if user.username == session.get('admin_user'):
+        return jsonify({'error': 'Cannot delete your own account'}), 400
+    
+    db.session.delete(user)
+    db.session.commit()
+    
+    return jsonify({'message': 'User deleted successfully'})
+
+# Profile Management API Routes
+@app.route('/api/profile', methods=['GET'])
+def api_profile():
+    if 'admin_logged_in' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    username = session.get('admin_user')
+    user = User.query.filter_by(username=username).first()
+    
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+    
+    return jsonify({
+        'id': user.id,
+        'username': user.username,
+        'email': user.email,
+        'created_at': user.created_at.isoformat() if user.created_at else None,
+        'last_login': user.last_login.isoformat() if user.last_login else None
+    })
+
+@app.route('/api/change-password', methods=['POST'])
+def api_change_password():
+    if 'admin_logged_in' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    data = request.get_json()
+    current_password = data.get('current_password')
+    new_password = data.get('new_password')
+    
+    username = session.get('admin_user')
+    user = User.query.filter_by(username=username).first()
+    
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+    
+    # Verify current password
+    if not check_password_hash(user.password_hash, current_password):
+        return jsonify({'error': 'Current password is incorrect'}), 400
+    
+    # Update password
+    user.password_hash = generate_password_hash(new_password)
+    db.session.commit()
+    
+    return jsonify({'message': 'Password changed successfully'})
 
 if __name__ == '__main__':
     with app.app_context():
