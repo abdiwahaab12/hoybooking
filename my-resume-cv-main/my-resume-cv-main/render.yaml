@@ -3,7 +3,7 @@ services:
     name: my-resume-cv
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: python FolioOne/deploy.py
+    startCommand: python resume/deploy.py
     envVars:
       - key: SECRET_KEY
         generateValue: true
