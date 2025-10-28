@@ -18,13 +18,16 @@ def main():
     print(f"📁 Upload directory ensured: {upload_dir}")
     
     # Use persistent database path for production
-    if not os.environ.get('DATABASE_URL'):
+    database_url = os.environ.get('DATABASE_URL')
+    
+    # Check if DATABASE_URL is actually a database URL (not a secret key)
+    if not database_url or not database_url.startswith(('sqlite:', 'postgresql:', 'postgres:', 'mysql:')):
         # Use a persistent path for production deployments
         persistent_db_path = '/opt/render/project/src/instance/resume_db.db'
         os.environ['DATABASE_URL'] = f'sqlite:///{persistent_db_path}'
         print(f"🔍 Using persistent SQLite database: {persistent_db_path}")
     else:
-        print(f"🔍 Using provided DATABASE_URL: {os.environ.get('DATABASE_URL')}")
+        print(f"🔍 Using provided DATABASE_URL: {database_url}")
     
     # Ensure the instance directory exists for the database
     instance_dir = 'instance'
