@@ -21,7 +21,7 @@ def main():
     database_url = os.environ.get('DATABASE_URL')
     
     # Check if DATABASE_URL is actually a database URL (not a secret key)
-    if not database_url or not database_url.startswith(('sqlite:', 'postgresql:', 'postgres:', 'mysql:')):
+    if not database_url or not database_url.startswith(('sqlite:', 'postgresql:', 'postgres:', 'mysql:')) or 'SECRET_KEY' in database_url:
         # Use a persistent path for production deployments
         persistent_db_path = '/opt/render/project/src/instance/resume_db.db'
         os.environ['DATABASE_URL'] = f'sqlite:///{persistent_db_path}'
