@@ -16,19 +16,28 @@ def migrate_database():
         with app.app_context():
             # Get the database path - handle different SQLite URL formats
             db_uri = app.config['SQLALCHEMY_DATABASE_URI']
+            print(f"🔍 Database URI: {db_uri}")
+            
+            # Handle different SQLite URL formats
             if db_uri.startswith('sqlite:///'):
                 db_path = db_uri.replace('sqlite:///', '')
             elif db_uri.startswith('sqlite://'):
                 db_path = db_uri.replace('sqlite://', '')
+            elif db_uri.startswith('sqlite:'):
+                db_path = db_uri.replace('sqlite:', '')
             else:
                 # For other database types, we can't migrate directly
                 print(f"⚠️  Database type not supported for migration: {db_uri}")
                 return True
             
+            print(f"📁 Database path: {db_path}")
+            
             if not os.path.exists(db_path):
                 print(f"📁 Creating database at: {db_path}")
                 # Create the database directory if it doesn't exist
-                os.makedirs(os.path.dirname(db_path), exist_ok=True)
+                db_dir = os.path.dirname(db_path)
+                if db_dir:
+                    os.makedirs(db_dir, exist_ok=True)
                 # Create all tables
                 db.create_all()
                 print("✅ Database and tables created successfully!")

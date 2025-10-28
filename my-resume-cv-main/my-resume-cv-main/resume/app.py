@@ -9,7 +9,13 @@ import json
 from config import Config
 
 app = Flask(__name__)
-app.config.from_object(Config)
+
+# Use production config if DATABASE_URL is set (production environment)
+if os.environ.get('DATABASE_URL'):
+    from config_production import ProductionConfig
+    app.config.from_object(ProductionConfig)
+else:
+    app.config.from_object(Config)
 
 # Ensure upload directory exists
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)

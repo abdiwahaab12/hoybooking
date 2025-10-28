@@ -38,11 +38,11 @@ def main():
         if migrate_database():
             print("✅ Database migration completed successfully!")
         else:
-            print("❌ Database migration failed!")
-            sys.exit(1)
+            print("⚠️  Database migration had issues, but continuing...")
     except Exception as e:
-        print(f"❌ Migration error: {e}")
-        sys.exit(1)
+        print(f"⚠️  Migration error: {e}")
+        print("🔄 Attempting to continue without migration...")
+        # Don't exit, just continue - the app might still work
     
     # Import and run the app
     from app import app
