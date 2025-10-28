@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}Portfolio - Portfolio{% endblock %}
+{% block body_class %}portfolio-page{% endblock %}
+
+{% block content %}
+<!-- Portfolio Section -->
+<section id="portfolio" class="portfolio section">
+  <div class="container section-title" data-aos="fade-up">
+    <h2>Portfolio</h2>
+    <p>Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium totam rem aperiam</p>
+  </div>
+
+  <div class="container" data-aos="fade-up" data-aos-delay="100">
+    <div class="isotope-layout" data-default-filter="*" data-layout="masonry" data-sort="original-order">
+      <ul class="portfolio-filters isotope-filters" data-aos="fade-up" data-aos-delay="200">
+        <li data-filter="*" class="filter-active">All</li>
+        {% for category in categories %}
+        <li data-filter=".filter-{{ category.lower().replace(' ', '-') }}">{{ category }}</li>
+        {% endfor %}
+      </ul>
+
+      <div class="row gy-4 isotope-container" data-aos="fade-up" data-aos-delay="300">
+        {% for project in projects %}
+        <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-{{ project.category.lower().replace(' ', '-') }}">
+          <div class="portfolio-card">
+            <div class="portfolio-img" style="cursor: pointer;" data-project-id="{{ project.id }}" onclick="openProjectGallery(this.dataset.projectId)">
+              {% if project.image_url %}
+              <img src="{{ url_for('uploaded_file', filename=project.image_url) }}" alt="{{ project.title }}" class="img-fluid">
+              {% else %}
+              <div class="no-image-placeholder d-flex align-items-center justify-content-center bg-light" style="height: 200px;">
+                <div class="text-center text-muted">
+                  <i class="bi bi-image fs-1"></i>
+                  <p class="mt-2">No Image</p>
+                </div>
+              </div>
+              {% endif %}
+              <div class="portfolio-overlay">
+                <a href="javascript:void(0)" data-project-id="{{ project.id }}" onclick="openProjectGallery(this.dataset.projectId)" class="portfolio-gallery-link" title="View Gallery">
+                  <i class="bi bi-images"></i>
+                </a>
+                <a href="{{ url_for('portfolio_details', project_id=project.id) }}" class="portfolio-details-link" title="View Details">
+                  <i class="bi bi-link"></i>
+                </a>
+              </div>
+            </div>
+            <div class="portfolio-info">
+              <h4>{{ project.title }}</h4>
+              <p>{{ project.description[:100] }}{% if project.description|length > 100 %}...{% endif %}</p>
+              <div class="portfolio-tags">
+                <span class="badge bg-primary text-white fw-bold px-3 py-2">{{ project.category }}</span>
+                {% if project.technologies %}
+                  {% for tech in project.technologies[:2] %}
+                  <span class="badge bg-secondary text-white fw-medium px-2 py-1">{{ tech }}</span>
+                  {% endfor %}
+                {% endif %}
+              </div>
+              <div class="portfolio-links mt-3">
+                {% if project.github_url %}
+                <a href="{{ project.github_url }}" target="_blank" class="btn btn-outline-secondary btn-sm me-2" title="View on GitHub">
+                  <i class="bi bi-github"></i> GitHub
+                </a>
+                {% endif %}
+                {% if project.project_url %}
+                <a href="{{ project.project_url }}" target="_blank" class="btn btn-outline-primary btn-sm" title="View Live Demo">
+                  <i class="bi bi-eye"></i> Demo Preview
+                </a>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="text-center mt-5" data-aos="fade-up" data-aos-delay="400">
+      <a href="{{ url_for('contact') }}" class="btn btn-primary">Start a Project</a>
+    </div>
+  </div>
+</section>
+
+<!-- Gallery Slider Section -->
+<section id="gallery-slider" class="gallery-slider section">
+  <div class="container" data-aos="fade-up">
+    <div class="section-title">
+      <h2>Project Gallery</h2>
+      <p>Showcasing my work through visual storytelling</p>
+    </div>
+    
+    <div class="gallery-swiper swiper" data-aos="fade-up" data-aos-delay="100">
+      <div class="swiper-wrapper">
+        <div class="swiper-slide">
+          <div class="gallery-item">
+            <div class="no-image-placeholder d-flex align-items-center justify-content-center bg-light" style="height: 200px;">
+              <div class="text-center text-muted">
+                <i class="bi bi-image fs-1"></i>
+                <p class="mt-2">No Image</p>
+              </div>
+            </div>
+            <div class="gallery-overlay">
+              <h4>Web Development</h4>
+              <p>Modern responsive website</p>
+            </div>
+          </div>
+        </div>
+        <div class="swiper-slide">
+          <div class="gallery-item">
+            <div class="no-image-placeholder d-flex align-items-center justify-content-center bg-light" style="height: 200px;">
+              <div class="text-center text-muted">
+                <i class="bi bi-image fs-1"></i>
+                <p class="mt-2">No Image</p>
+              </div>
+            </div>
+            <div class="gallery-overlay">
+              <h4>Mobile App</h4>
+              <p>Cross-platform application</p>
+            </div>
+          </div>
+        </div>
+        <div class="swiper-slide">
+          <div class="gallery-item">
+            <div class="no-image-placeholder d-flex align-items-center justify-content-center bg-light" style="height: 200px;">
+              <div class="text-center text-muted">
+                <i class="bi bi-image fs-1"></i>
+                <p class="mt-2">No Image</p>
+              </div>
+            </div>
+            <div class="gallery-overlay">
+              <h4>UI/UX Design</h4>
+              <p>User interface design</p>
+            </div>
+          </div>
+        </div>
+        <div class="swiper-slide">
+          <div class="gallery-item">
+            <div class="no-image-placeholder d-flex align-items-center justify-content-center bg-light" style="height: 200px;">
+              <div class="text-center text-muted">
+                <i class="bi bi-image fs-1"></i>
+                <p class="mt-2">No Image</p>
+              </div>
+            </div>
+            <div class="gallery-overlay">
+              <h4>E-commerce</h4>
+              <p>Online shopping platform</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="swiper-pagination"></div>
+      <div class="swiper-button-next"></div>
+      <div class="swiper-button-prev"></div>
+    </div>
+  </div>
+</section>
+{% endblock %}
