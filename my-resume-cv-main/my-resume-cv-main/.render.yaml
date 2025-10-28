@@ -4,6 +4,9 @@ services:
     env: python
     buildCommand: pip install -r requirements.txt
     startCommand: python resume/deploy.py
+    dockerfilePath: ""
+    dockerContext: ""
+    usePoetry: false
     envVars:
       - key: SECRET_KEY
         generateValue: true
