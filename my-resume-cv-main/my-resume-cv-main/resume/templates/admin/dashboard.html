@@ -658,9 +658,9 @@
                             <input type="password" class="form-control" name="password" id="userPassword" required minlength="6">
                             <div class="form-text">Password must be at least 6 characters long.</div>
                         </div>
-                        <div class="mb-3" id="confirmPasswordDiv" style="display: none;">
+                        <div class="mb-3" id="confirmPasswordDiv">
                             <label class="form-label">Confirm Password</label>
-                            <input type="password" class="form-control" name="confirm_password" id="userConfirmPassword">
+                            <input type="password" class="form-control" name="confirm_password" id="userConfirmPassword" required>
                         </div>
                     </form>
                 </div>
@@ -1362,14 +1362,17 @@
             const formData = new FormData(form);
             const data = Object.fromEntries(formData.entries());
             
-            // Validate passwords match for new users
-            if (!data.user_id && data.password !== data.confirm_password) {
-                alert('Passwords do not match!');
-                return;
-            }
-            
             // Determine if this is an update or create operation
             const isUpdate = data.user_id && data.user_id !== '';
+            const confirmPasswordField = document.getElementById('userConfirmPassword');
+            
+            // Validate passwords match for new users or when both password fields are filled
+            if (!isUpdate || confirmPasswordField.value) {
+                if (data.password !== data.confirm_password) {
+                    alert('Passwords do not match!');
+                    return;
+                }
+            }
             const url = isUpdate ? `/api/users/${data.user_id}` : '/api/users';
             const method = isUpdate ? 'PUT' : 'POST';
             
@@ -1415,8 +1418,7 @@
                     document.querySelector('input[name="password"]').placeholder = 'Leave blank to keep current password';
                     document.querySelector('input[name="password"]').required = false;
                     
-                    // Show confirm password field
-                    document.getElementById('confirmPasswordDiv').style.display = 'block';
+                    // Confirm password field is already visible, just make it optional for editing
                     document.getElementById('userConfirmPassword').required = false;
                     
                     // Show modal
@@ -1513,7 +1515,7 @@
             document.getElementById('userModalTitle').textContent = 'Add New User';
             document.querySelector('input[name="password"]').required = true;
             document.querySelector('input[name="password"]').placeholder = '';
-            document.getElementById('confirmPasswordDiv').style.display = 'none';
+            document.getElementById('userConfirmPassword').required = true;
         });
     </script>
 </body>
