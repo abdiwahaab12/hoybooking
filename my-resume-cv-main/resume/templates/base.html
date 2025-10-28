@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>{% block title %}Resume - Portfolio{% endblock %}</title>
+  <meta name="description" content="{% block description %}{% endblock %}">
+  <meta name="keywords" content="{% block keywords %}{% endblock %}">
+
+  <!-- Favicons -->
+  <link href="{{ url_for('static', filename='assets/img/man.jpg') }}" rel="icon">
+  <link href="{{ url_for('static', filename='assets/img/man.jpg') }}" rel="apple-touch-icon">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="{{ url_for('static', filename='assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='assets/vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='assets/vendor/aos/aos.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='assets/vendor/swiper/swiper-bundle.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='assets/vendor/glightbox/css/glightbox.min.css') }}" rel="stylesheet">
+
+  <!-- Main CSS File -->
+  <link href="{{ url_for('static', filename='assets/css/main.css') }}" rel="stylesheet">
+
+  <!-- Custom Styles for Portfolio Cards -->
+  <style>
+    .portfolio-tags .badge, .project-tags .badge {
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      border-radius: 20px;
+      margin-right: 8px;
+      margin-bottom: 4px;
+      display: inline-block;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .portfolio-tags .badge.bg-primary, .project-tags .badge.bg-primary {
+      background: linear-gradient(135deg, #007bff, #0056b3) !important;
+      border: none;
+    }
+    
+    .portfolio-tags .badge.bg-secondary, .project-tags .badge.bg-secondary {
+      background: linear-gradient(135deg, #6c757d, #495057) !important;
+      border: none;
+    }
+    
+    .portfolio-tags .badge:hover, .project-tags .badge:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+      transition: all 0.2s ease;
+    }
+    
+    /* Hero slider styles removed - now using single static image */
+    
+    /* Gallery Slider Styles */
+    .gallery-swiper {
+      padding: 20px 0;
+    }
+    
+    .gallery-item {
+      position: relative;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease;
+    }
+    
+    .gallery-item:hover {
+      transform: translateY(-5px);
+    }
+    
+    .gallery-item img {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+    }
+    
+    .gallery-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(transparent, rgba(0,0,0,0.8));
+      color: white;
+      padding: 30px 20px 20px;
+      transform: translateY(100%);
+      transition: transform 0.3s ease;
+    }
+    
+    .gallery-item:hover .gallery-overlay {
+      transform: translateY(0);
+    }
+    
+    .gallery-overlay h4 {
+      margin: 0 0 5px 0;
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+    
+    .gallery-overlay p {
+      margin: 0;
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+    
+    .gallery-swiper .swiper-pagination {
+      bottom: -50px;
+    }
+    
+    .gallery-swiper .swiper-pagination-bullet {
+      background: #007bff;
+      opacity: 0.3;
+    }
+    
+    .gallery-swiper .swiper-pagination-bullet-active {
+      opacity: 1;
+    }
+    
+    .gallery-swiper .swiper-button-next,
+    .gallery-swiper .swiper-button-prev {
+      color: #007bff;
+      background: rgba(255,255,255,0.9);
+      border-radius: 50%;
+      width: 45px;
+      height: 45px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    
+    .gallery-swiper .swiper-button-next:after,
+    .gallery-swiper .swiper-button-prev:after {
+      font-size: 18px;
+    }
+    
+    /* Project Gallery Modal Styles */
+    .project-gallery-slider {
+      height: 500px;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    
+    .project-gallery-slider .swiper-slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    
+    .project-gallery-slider {
+      height: 400px;
+    }
+    
+    .project-gallery-slider .swiper-pagination {
+      bottom: 20px;
+    }
+    
+    .project-gallery-slider .swiper-pagination-bullet {
+      background: rgba(255,255,255,0.5);
+      opacity: 1;
+    }
+    
+    .project-gallery-slider .swiper-pagination-bullet-active {
+      background: #007bff;
+    }
+    
+    .project-gallery-slider .swiper-button-next,
+    .project-gallery-slider .swiper-button-prev {
+      color: #007bff;
+      background: rgba(255,255,255,0.9);
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+    }
+    
+    .project-gallery-slider .swiper-button-next:after,
+    .project-gallery-slider .swiper-button-prev:after {
+      font-size: 20px;
+    }
+    
+    .project-details {
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 15px;
+      height: 500px;
+      overflow-y: auto;
+    }
+    
+    .project-details h3 {
+      color: #333;
+      margin-bottom: 15px;
+      font-weight: 600;
+    }
+    
+    .project-details h6 {
+      color: #007bff;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    
+    .project-details p {
+      color: #666;
+      line-height: 1.6;
+    }
+    
+    .project-technologies .badge {
+      margin-right: 5px;
+      margin-bottom: 5px;
+    }
+    
+    .modal-xl {
+      max-width: 1200px;
+    }
+    
+    /* Portfolio Gallery Link Styles */
+    .portfolio-gallery-link, .project-gallery-link {
+      background: rgba(0, 123, 255, 0.9);
+      color: white;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      margin-right: 10px;
+    }
+    
+    .portfolio-gallery-link:hover, .project-gallery-link:hover {
+      background: rgba(0, 123, 255, 1);
+      color: white;
+      transform: scale(1.1);
+    }
+    
+    .portfolio-img:hover, .project-img:hover {
+      transform: scale(1.02);
+      transition: transform 0.3s ease;
+    }
+  </style>
+
+  {% block extra_css %}{% endblock %}
+</head>
+
+<body class="{% block body_class %}{% endblock %}">
+
+  <header id="header" class="header d-flex align-items-center light-background sticky-top">
+    <div class="container position-relative d-flex align-items-center justify-content-center">
+
+      <!-- <a href="{{ url_for('index') }}" class="logo d-flex align-items-center me-auto me-xl-0">
+      <img src="{{ url_for('static', filename='assets/img/logo.webp') }}" alt="">
+      <h1 class="sitename">Portfolio</h1> 
+    </a> -->
+
+      <nav id="navmenu" class="navmenu mx-auto">
+        <ul class="d-flex justify-content-center">
+          <li><a href="{{ url_for('index') }}" {% if request.endpoint == 'index' %}class="active"{% endif %}>Home</a></li>
+          <li><a href="{{ url_for('about') }}" {% if request.endpoint == 'about' %}class="active"{% endif %}>About</a></li>
+          <li><a href="{{ url_for('resume') }}" {% if request.endpoint == 'resume' %}class="active"{% endif %}>Resume</a></li>
+          <li><a href="{{ url_for('services') }}" {% if request.endpoint == 'services' %}class="active"{% endif %}>Services</a></li>
+          <li><a href="{{ url_for('portfolio') }}" {% if request.endpoint == 'portfolio' %}class="active"{% endif %}>Portfolio</a></li>
+          <li><a href="{{ url_for('contact') }}" {% if request.endpoint == 'contact' %}class="active"{% endif %}>Contact</a></li>
+        </ul>
+        <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+      </nav>
+
+      <div class="header-social-links">
+        <a href="https://www.linkedin.com/in/abdiwahaab-abdikadir-aa66652bb" class="linkedin" target="_blank"><i class="bi bi-linkedin"></i></a>
+        <a href="https://www.facebook.com/naagwxba.aanogeyn/" class="facebook" target="_blank"><i class="bi bi-facebook"></i></a>
+        <a href="https://www.instagram.com/abdiwahab8138/" class="instagram" target="_blank"><i class="bi bi-instagram"></i></a>
+        <a href="https://wa.me/254116052716" class="whatsapp" target="_blank"><i class="bi bi-whatsapp"></i></a>
+      </div>
+
+    </div>
+  </header>
+
+  <main class="main">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="container mt-3">
+          {% for category, message in messages %}
+            <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer id="footer" class="footer">
+    <div class="container">
+      <div class="copyright text-center ">
+        <p>© <span>Copyright</span> <strong class="px-1 sitename">Portfolio</strong> <span>All Rights Reserved<br></span></p>
+      </div>
+      <div class="social-links d-flex justify-content-center">
+        <a href=""><i class="bi bi-twitter-x"></i></a>
+        <a href=""><i class="bi bi-facebook"></i></a>
+        <a href=""><i class="bi bi-instagram"></i></a>
+        <a href=""><i class="bi bi-linkedin"></i></a>
+      </div>
+      <div class="credits">
+        Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scroll Top -->
+  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Preloader -->
+  <div id="preloader"></div>
+
+  <!-- Vendor JS Files -->
+  <script src="{{ url_for('static', filename='assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/vendor/php-email-form/validate.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/vendor/aos/aos.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/vendor/typed.js/typed.umd.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/vendor/waypoints/noframework.waypoints.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/vendor/purecounter/purecounter_vanilla.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/vendor/swiper/swiper-bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/vendor/imagesloaded/imagesloaded.pkgd.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/vendor/isotope-layout/isotope.pkgd.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/vendor/glightbox/js/glightbox.min.js') }}"></script>
+
+  <!-- Main JS File -->
+  <script src="{{ url_for('static', filename='assets/js/main.js') }}"></script>
+
+  <!-- Hero Slider Initialization -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Hero slider removed - now using single static image
+      
+      // Initialize Gallery Slider
+      if (document.querySelector('.gallery-swiper')) {
+        const gallerySlider = new Swiper('.gallery-swiper', {
+          loop: true,
+          autoplay: {
+            delay: 4000,
+            disableOnInteraction: false,
+          },
+          slidesPerView: 1,
+          spaceBetween: 30,
+          breakpoints: {
+            640: {
+              slidesPerView: 2,
+              spaceBetween: 20,
+            },
+            768: {
+              slidesPerView: 3,
+              spaceBetween: 30,
+            },
+            1024: {
+              slidesPerView: 4,
+              spaceBetween: 30,
+            },
+          },
+          pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+          },
+          navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+          },
+        });
+      }
+    });
+    
+    // Function to open project gallery modal
+    function openProjectGallery(projectId) {
+      fetch('/api/projects')
+        .then(response => response.json())
+        .then(projects => {
+          const project = projects.find(p => p.id === projectId);
+          if (project) {
+            // Update modal title
+            document.getElementById('projectGalleryModalLabel').textContent = project.title;
+            
+            // Update project details
+            document.getElementById('galleryProjectTitle').textContent = project.title;
+            document.getElementById('galleryProjectCategory').textContent = project.category;
+            document.getElementById('galleryProjectDate').textContent = new Date(project.created_at).toLocaleDateString();
+            document.getElementById('galleryProjectDescription').textContent = project.long_description || project.description;
+            
+            // Update technologies
+            const techContainer = document.getElementById('galleryProjectTechnologies');
+            techContainer.innerHTML = '';
+            if (project.technologies && project.technologies.length > 0) {
+              project.technologies.forEach(tech => {
+                const badge = document.createElement('span');
+                badge.className = 'badge bg-secondary me-1 mb-1';
+                badge.textContent = tech;
+                techContainer.appendChild(badge);
+              });
+            }
+            
+            // Update project links
+            const projectUrl = document.getElementById('galleryProjectUrl');
+            const githubUrl = document.getElementById('galleryGithubUrl');
+            
+            if (project.project_url) {
+              projectUrl.href = project.project_url;
+              projectUrl.style.display = 'block';
+            } else {
+              projectUrl.style.display = 'none';
+            }
+            
+            if (project.github_url) {
+              githubUrl.href = project.github_url;
+              githubUrl.style.display = 'block';
+            } else {
+              githubUrl.style.display = 'none';
+            }
+            
+            // Update gallery images
+            const sliderWrapper = document.getElementById('gallerySliderWrapper');
+            sliderWrapper.innerHTML = '';
+            
+            // Add main image if available
+            if (project.image_url) {
+              const slide = document.createElement('div');
+              slide.className = 'swiper-slide';
+              slide.innerHTML = `<img src="/uploads/${project.image_url}" alt="${project.title}">`;
+              sliderWrapper.appendChild(slide);
+            }
+            
+            // Add gallery images
+            if (project.gallery_images && project.gallery_images.length > 0) {
+              console.log('Gallery images found:', project.gallery_images);
+              project.gallery_images.forEach(imageUrl => {
+                const slide = document.createElement('div');
+                slide.className = 'swiper-slide';
+                slide.innerHTML = `<img src="/uploads/${imageUrl}" alt="${project.title}" onerror="console.error('Failed to load image:', this.src)">`;
+                sliderWrapper.appendChild(slide);
+              });
+            } else {
+              console.log('No gallery images found for project:', project.title);
+            }
+            
+            // If no images, show placeholder
+            if (!project.image_url && (!project.gallery_images || project.gallery_images.length === 0)) {
+              const slide = document.createElement('div');
+              slide.className = 'swiper-slide';
+              slide.innerHTML = `
+                <div class="d-flex align-items-center justify-content-center h-100 bg-light">
+                  <div class="text-center text-muted">
+                    <i class="bi bi-image fs-1"></i>
+                    <p class="mt-2">No images available</p>
+                  </div>
+                </div>
+              `;
+              sliderWrapper.appendChild(slide);
+            }
+            
+            // Initialize or update the gallery slider
+            if (window.gallerySlider) {
+              window.gallerySlider.destroy(true, true);
+            }
+            
+            window.gallerySlider = new Swiper('.project-gallery-slider', {
+              loop: true,
+              autoplay: {
+                delay: 4000,
+                disableOnInteraction: false,
+              },
+              effect: 'slide',
+              pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+              },
+              navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+              },
+            });
+            
+            // Show the modal
+            const modal = new bootstrap.Modal(document.getElementById('projectGalleryModal'));
+            modal.show();
+          }
+        })
+        .catch(error => {
+          console.error('Error loading project:', error);
+          alert('Error loading project details');
+        });
+    }
+  </script>
+
+  {% block extra_js %}{% endblock %}
+
+  <!-- Project Gallery Modal -->
+  <div class="modal fade" id="projectGalleryModal" tabindex="-1" aria-labelledby="projectGalleryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="projectGalleryModalLabel">Project Gallery</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <!-- Gallery Slider -->
+            <div class="col-lg-8">
+              <div class="project-gallery-slider swiper">
+                <div class="swiper-wrapper" id="gallerySliderWrapper">
+                  <!-- Gallery images will be loaded here -->
+                </div>
+                <div class="swiper-pagination"></div>
+                <div class="swiper-button-next"></div>
+                <div class="swiper-button-prev"></div>
+              </div>
+            </div>
+            
+            <!-- Project Details -->
+            <div class="col-lg-4">
+              <div class="project-details">
+                <h3 id="galleryProjectTitle">Project Title</h3>
+                <div class="project-meta mb-3">
+                  <span class="badge bg-primary" id="galleryProjectCategory">Category</span>
+                  <span class="text-muted ms-2" id="galleryProjectDate">Date</span>
+                </div>
+                
+                <div class="project-description mb-4">
+                  <h6>Description</h6>
+                  <p id="galleryProjectDescription">Project description will appear here...</p>
+                </div>
+                
+                <div class="project-technologies mb-4">
+                  <h6>Technologies Used</h6>
+                  <div id="galleryProjectTechnologies">
+                    <!-- Technologies will be loaded here -->
+                  </div>
+                </div>
+                
+                <div class="project-links">
+                  <h6>Project Links</h6>
+                  <div class="d-grid gap-2">
+                    <a href="#" id="galleryProjectUrl" class="btn btn-primary" target="_blank" style="display: none;">
+                      <i class="bi bi-eye me-2"></i>View Live Demo
+                    </a>
+                    <a href="#" id="galleryGithubUrl" class="btn btn-outline-secondary" target="_blank" style="display: none;">
+                      <i class="bi bi-github me-2"></i>View on GitHub
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+
+</html>

@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: my-resume-cv
+    env: python
+    buildCommand: pip install -r resume/requirements.txt
+    startCommand: cd resume && python deploy.py
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        value: sqlite:///instance/resume_db.db
+      - key: FLASK_ENV
+        value: production

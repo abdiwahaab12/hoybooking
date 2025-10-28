@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Portfolio{% endblock %}
+{% block body_class %}index-page{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section id="hero" class="hero section">
+  <div class="container" data-aos="fade-up" data-aos-delay="100">
+    <div class="row gy-4 align-items-center">
+      <div class="col-lg-6 order-2 order-lg-1">
+        <div class="hero-content"> 
+          <h1 data-aos="fade-up" data-aos-delay="200">Hello, I'm <span class="highlight">Abdiwahab Abdikadir Hassan</span></h1>
+          <h2 data-aos="fade-up" data-aos-delay="300">Professional <span class="typed" data-typed-items="Computer Scientist, Graphic Designer, Web Developer, Software Solutions Expert"></span></h2>
+          <p data-aos="fade-up" data-aos-delay="400">A dedicated and results-oriented professional with a strong background in computer science and accounting. I am committed to continuous learning, problem-solving, and teamwork, striving to make a positive impact in every role with excellent communication skills and professionalism.</p>
+          <div class="hero-actions" data-aos="fade-up" data-aos-delay="500">
+            <a href="{{ url_for('portfolio') }}" class="btn btn-primary">View My Work</a>
+            <a href="{{ url_for('contact') }}" class="btn btn-outline">Get In Touch</a>
+          </div>
+          <div class="social-links" data-aos="fade-up" data-aos-delay="600">
+            <a href="https://www.linkedin.com/in/abdiwahaab-abdikadir-aa66652bb" target="_blank"><i class="bi bi-linkedin"></i></a>
+            <a href="https://www.facebook.com/naagwxba.aanogeyn/" target="_blank"><i class="bi bi-facebook"></i></a>
+            <a href="https://www.instagram.com/abdiwahab8138/" target="_blank"><i class="bi bi-instagram"></i></a>
+            <a href="https://wa.me/254116052716" target="_blank"><i class="bi bi-whatsapp"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 order-1 order-lg-2">
+        <div class="hero-image" data-aos="zoom-in" data-aos-delay="300">
+          <div class="image-wrapper">
+            <!-- Hero Image -->
+            <img src="{{ url_for('static', filename='assets/img/profile/profile-square-11.webp') }}" alt="Abdiwahab Abdikadir Hassan" class="img-fluid hero-profile-image" data-aos="zoom-in" data-aos-delay="300">
+            
+            <div class="floating-elements">
+              <div class="floating-card design" data-aos="fade-left" data-aos-delay="700">
+                <i class="bi bi-palette"></i>
+                <span>Design</span>
+              </div>
+              <div class="floating-card code" data-aos="fade-right" data-aos-delay="800">
+                <i class="bi bi-code-slash"></i>
+                <span>Code</span>
+              </div>
+              <div class="floating-card creativity" data-aos="fade-up" data-aos-delay="900">
+                <i class="bi bi-lightbulb"></i>
+                <span>Ideas</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section><!-- /Hero Section -->
+
+<!-- Featured Projects Section -->
+{% if projects %}
+<section id="featured-projects" class="featured-projects section">
+  <div class="container" data-aos="fade-up" data-aos-delay="100">
+    <div class="section-title">
+      <h2>Featured Projects</h2>
+      <p>Some of my recent work that showcases my skills and creativity</p>
+    </div>
+    
+    <div class="row g-4">
+      {% for project in projects %}
+      <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="{{ loop.index * 100 }}">
+        <div class="project-card">
+          <div class="project-img" style="cursor: pointer;" data-project-id="{{ project.id }}" onclick="openProjectGallery(this.dataset.projectId)">
+            {% if project.image_url %}
+            <img src="{{ url_for('uploaded_file', filename=project.image_url) }}" alt="{{ project.title }}" class="img-fluid">
+            {% else %}
+            <div class="no-image-placeholder d-flex align-items-center justify-content-center bg-light" style="height: 200px;">
+              <div class="text-center text-muted">
+                <i class="bi bi-image fs-1"></i>
+                <p class="mt-2">No Image</p>
+              </div>
+            </div>
+            {% endif %}
+            <div class="project-overlay">
+              <a href="javascript:void(0)" data-project-id="{{ project.id }}" onclick="openProjectGallery(this.dataset.projectId)" class="project-gallery-link" title="View Gallery">
+                <i class="bi bi-images"></i>
+              </a>
+              <a href="{{ url_for('portfolio_details', project_id=project.id) }}" class="project-details-link" title="View Details">
+                <i class="bi bi-link"></i>
+              </a>
+            </div>
+          </div>
+          <div class="project-info">
+            <h4>{{ project.title }}</h4>
+            <p>{{ project.description[:100] }}{% if project.description|length > 100 %}...{% endif %}</p>
+            <div class="project-tags">
+              <span class="badge bg-primary text-white fw-bold px-3 py-2">{{ project.category }}</span>
+              {% if project.technologies %}
+                {% for tech in project.technologies[:2] %}
+                <span class="badge bg-secondary text-white fw-medium px-2 py-1">{{ tech }}</span>
+                {% endfor %}
+              {% endif %}
+            </div>
+            <div class="project-links mt-3">
+              {% if project.github_url %}
+              <a href="{{ project.github_url }}" target="_blank" class="btn btn-outline-secondary btn-sm me-2" title="View on GitHub">
+                <i class="bi bi-github"></i> GitHub
+              </a>
+              {% endif %}
+              {% if project.project_url %}
+              <a href="{{ project.project_url }}" target="_blank" class="btn btn-outline-primary btn-sm" title="View Live Demo">
+                <i class="bi bi-eye"></i> Demo Preview
+              </a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    
+    <div class="text-center mt-4" data-aos="fade-up" data-aos-delay="400">
+      <a href="{{ url_for('portfolio') }}" class="btn btn-primary">View All Projects</a>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- Skills Preview Section -->
+{% if skills %}
+<section id="skills-preview" class="skills-preview section">
+  <div class="container" data-aos="fade-up" data-aos-delay="100">
+    <div class="section-title">
+      <h2>Core Skills</h2>
+      <p>Technologies and tools I work with</p>
+    </div>
+    
+    <div class="row g-4">
+      {% for skill in skills[:8] %}
+      <div class="col-6 col-md-3 col-lg-2" data-aos="fade-up" data-aos-delay="{{ loop.index * 100 }}">
+        <div class="skill-item text-center">
+          {% if skill.icon %}
+          <i class="{{ skill.icon }}"></i>
+          {% else %}
+          <i class="bi bi-code-slash"></i>
+          {% endif %}
+          <h4>{{ skill.name }}</h4>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    
+    <div class="text-center mt-4" data-aos="fade-up" data-aos-delay="400">
+      <a href="{{ url_for('about') }}" class="btn btn-outline">Learn More About Me</a>
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

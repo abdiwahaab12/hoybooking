@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}About - Portfolio{% endblock %}
+{% block body_class %}about-page{% endblock %}
+
+{% block content %}
+<!-- About Section -->
+<section id="about" class="about section">
+  <div class="container section-title" data-aos="fade-up">
+    <h2>About</h2>
+    <p>I am Abdiwahaab, a passionate and skilled software developer with strong expertise in building modern and user-friendly websites. I specialize in both front-end and back-end development, combining clean design with powerful functionality to create effective digital solutions. I also have solid experience in database management and graphic design, which allows me to deliver complete and professional projects from start to finish. I am dedicated, hardworking, and always eager to learn new technologies to improve my skills and grow as a developer.</p>
+  </div>
+
+  <div class="container" data-aos="fade-up" data-aos-delay="100">
+    <!-- Intro + Photo -->
+    <div class="row align-items-center justify-content-between gy-5 mb-5">
+      <div class="col-lg-7" data-aos="fade-right" data-aos-delay="150">
+        <div class="intro-content">
+          <span class="eyebrow">Hello there</span>
+          <h2 class="headline">Hi, I'm Abdiwahab Abdikadir Hassan - a dedicated computer scientist and graphic designer crafting innovative digital solutions</h2>
+          <p class="lead">I am a dedicated and results-oriented professional with a strong background in computer science and accounting, bringing a commitment to continuous learning, problem-solving, and teamwork. I strive to make a positive impact in every role I undertake with excellent communication skills and professionalism.</p>
+          <p>I have developed strong skills in computer applications and design during my studies. I am a fast learner, responsible, and ready to contribute positively to any team or organization. I am seeking my first job opportunity as a diploma and bachelor graduate, eager to apply my knowledge in a real-world environment.</p>
+          <div class="cta-group">
+            <a href="{{ url_for('portfolio') }}" class="btn-ghost">View My Work <i class="bi bi-arrow-up-right"></i></a>
+            <a href="#" class="link-underline">Download Resume <i class="bi bi-download"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-5" data-aos="zoom-in" data-aos-delay="250">
+        <figure class="profile-figure text-center text-lg-end">
+          <img src="{{ url_for('static', filename='assets/img/profile/profile-square-11.webp') }}" alt="Portrait of Brandon" class="img-fluid profile-photo">
+        </figure>
+      </div>
+    </div>
+
+    <!-- Skills Grid -->
+    {% if skills %}
+    <div class="mb-5">
+      <div class="row g-4">
+        {% for skill in skills[:4] %}
+        <div class="col-6 col-md-4 col-lg-3" data-aos="fade-up" data-aos-delay="{{ loop.index * 60 + 120 }}">
+          <div class="skill-item">
+            {% if skill.icon %}<i class="{{ skill.icon }}"></i>{% else %}<i class="bi bi-code-slash"></i>{% endif %}
+            <h3>{{ skill.name }}</h3>
+            <p>{{ skill.description or 'Professional skill in ' + skill.name }}</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Journey Timeline -->
+    {% if experiences %}
+    <div class="mb-5">
+      <div class="row g-4">
+        {% for exp in experiences[:4] %}
+        <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="{{ loop.index * 60 + 120 }}">
+          <article class="timeline-item">
+            <span class="dot"></span>
+            <time>{{ exp.start_date.year }}</time>
+            <h4>{{ exp.title }}</h4>
+            <p>{{ exp.company }}</p>
+          </article>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Quote -->
+    <blockquote class="personal-quote text-center mb-5" data-aos="fade-down" data-aos-delay="200">
+      <p>"Building clean and meaningful experiences through thoughtful code and quiet design."</p>
+    </blockquote>
+
+    <!-- Fun Facts -->
+    <div class="row g-3 justify-content-center">
+      <div class="col-6 col-md-3 col-lg-2" data-aos="zoom-in" data-aos-delay="120">
+        <div class="fact-pill"><i class="bi bi-magic"></i><span>Minimalism</span></div>
+      </div>
+      <div class="col-6 col-md-3 col-lg-2" data-aos="zoom-in" data-aos-delay="160">
+        <div class="fact-pill"><i class="bi bi-headphones"></i><span>Lo-fi Beats</span></div>
+      </div>
+      <div class="col-6 col-md-3 col-lg-2" data-aos="zoom-in" data-aos-delay="200">
+        <div class="fact-pill"><i class="bi bi-geo-alt"></i><span>City Walks</span></div>
+      </div>
+      <div class="col-6 col-md-3 col-lg-2" data-aos="zoom-in" data-aos-delay="240">
+        <div class="fact-pill"><i class="bi bi-brush"></i><span>Sketching</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Skills Section -->
+{% if skills %}
+<section id="skills" class="skills section">
+  <div class="container section-title" data-aos="fade-up">
+    <h2>Skills</h2>
+    <p>Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium totam rem aperiam</p>
+  </div>
+
+  <div class="container" data-aos="fade-up" data-aos-delay="100">
+    <div class="row g-4 skills-animation">
+      {% for skill in skills[:4] %}
+      <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="{{ loop.index * 100 + 100 }}">
+        <div class="skill-box">
+          <h3>{{ skill.name }}</h3>
+          <p>{{ skill.description or 'Professional skill in ' + skill.name }}</p>
+          <span class="text-end d-block">{{ skill.proficiency }}%</span>
+          <div class="progress">
+            <div class="progress-bar" role="progressbar" aria-valuenow="{{ skill.proficiency }}" aria-valuemin="0" aria-valuemax="100"></div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}
