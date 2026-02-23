@@ -1,0 +1,7 @@
+## Root requirements for Render / pip
+##
+## This file simply reuses the actual app dependencies
+## defined inside the Tailor project folder.
+
+-r tailor/requirements.txt
+
