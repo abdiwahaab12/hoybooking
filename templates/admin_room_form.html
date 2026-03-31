@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}Room Form - HOYBOOKING{% endblock %}
+{% block page_wrapper_class %}container-fluid{% endblock %}
+{% block container_class %}p-0 m-0{% endblock %}
+{% block content %}
+  <div class="admin-ui-wrap">
+    <div class="row g-3">
+      <div class="col-12 col-lg-3 col-xl-2">
+        <aside class="admin-ui-sidebar p-3 h-100">
+          <div class="admin-ui-profile d-flex align-items-center gap-2 mb-4">
+            <div class="admin-ui-avatar"><i class="fa-solid fa-user-shield"></i></div>
+            <div><div class="fw-semibold text-white">Admin Panel</div><div class="small text-white-50">HOYBOOKING</div></div>
+          </div>
+          <nav class="nav flex-column gap-2">
+            <a class="admin-ui-nav-link" href="{{ url_for('admin.admin_dashboard') }}"><i class="fa-solid fa-table-columns me-2"></i>Dashboard</a>
+            <a class="admin-ui-nav-link active" href="{{ url_for('admin.admin_rooms') }}"><i class="fa-solid fa-bed me-2"></i>Rooms</a>
+            <a class="admin-ui-nav-link" href="{{ url_for('admin.admin_bookings') }}"><i class="fa-solid fa-clipboard-list me-2"></i>Bookings</a>
+            <a class="admin-ui-nav-link" href="{{ url_for('admin.admin_users') }}"><i class="fa-solid fa-users me-2"></i>Users</a>
+            <a class="admin-ui-nav-link" href="{{ url_for('admin.admin_payments') }}"><i class="fa-solid fa-receipt me-2"></i>Payments</a>
+            <a class="admin-ui-nav-link" href="{{ url_for('admin.admin_contact_messages') }}"><i class="fa-solid fa-envelope me-2"></i>Contact</a>
+            <a class="admin-ui-nav-link mt-3" href="{{ url_for('auth.logout') }}"><i class="fa-solid fa-arrow-right-from-bracket me-2"></i>Logout</a>
+          </nav>
+        </aside>
+      </div>
+      <div class="col-12 col-lg-9 col-xl-10">
+        <div class="admin-ui-header mb-3"><h3 class="mb-0">{{ "Edit Room" if room else "Add Room" }}</h3></div>
+        <div class="admin-ui-surface p-3 p-lg-4">
+  <form method="post" enctype="multipart/form-data">
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label class="form-label">Room Number</label>
+        <input class="form-control" name="room_number" required value="{{ room.room_number if room else '' }}" />
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Room Type</label>
+        <select class="form-select" name="room_type" required>
+          {% for t in ['single','double','deluxe','apartment'] %}
+            <option value="{{ t }}" {% if room and room.room_type == t %}selected{% endif %}>{{ t|capitalize }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Price</label>
+        <input class="form-control" name="price" type="number" step="0.01" required value="{{ room.price if room else '' }}" />
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Status</label>
+        <select class="form-select" name="status">
+          <option value="available" {% if not room or room.status == 'available' %}selected{% endif %}>Available</option>
+          <option value="booked" {% if room and room.status == 'booked' %}selected{% endif %}>Not Available</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Unit Rooms</label>
+        <input class="form-control" name="unit_rooms" type="number" min="1" value="{{ room.unit_rooms if room else 1 }}" required />
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Capacity (Guests)</label>
+        <input class="form-control" name="capacity" type="number" min="1" value="{{ room.capacity if room else 2 }}" required />
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Room Image</label>
+        <input class="form-control" name="image" type="file" accept=".jpg,.jpeg,.png,.webp,.gif" />
+        {% if room and room.image %}
+          <div class="mt-2">
+            <img src="{{ url_for('static', filename=room.image) }}" alt="Room image" style="height:100px;border-radius:8px;" />
+          </div>
+        {% endif %}
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Room Gallery Images (minimum 4)</label>
+        <input class="form-control" name="images" type="file" accept=".jpg,.jpeg,.png,.webp,.gif" multiple />
+      </div>
+      {% if room and room.images %}
+        <div class="col-12">
+          <label class="form-label">Existing Gallery</label>
+          <div class="row row-cols-2 row-cols-md-4 g-2">
+            {% for img in room.images %}
+              <div class="col">
+                <div class="border rounded p-2">
+                  <img src="{{ url_for('static', filename=img.image_path) }}" alt="gallery image" style="height:90px;width:100%;object-fit:cover;border-radius:6px;" />
+                  <div class="small text-muted mt-1">{{ img.label or 'photo' }}</div>
+                  <form method="post" action="{{ url_for('admin.admin_room_image_delete', room_id=room.id, image_id=img.id) }}">
+                    <button class="btn btn-sm btn-outline-danger w-100 mt-1" type="submit">Delete</button>
+                  </form>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="mt-4 d-flex gap-2 flex-wrap">
+      <button class="btn btn-success" type="submit">Save</button>
+      <a class="btn btn-outline-secondary" href="{{ url_for('admin.admin_rooms') }}">Cancel</a>
+    </div>
+  </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+

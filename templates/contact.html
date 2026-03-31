@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}Contact - HOYBOOKING{% endblock %}
+{% block page_wrapper_class %}container-fluid{% endblock %}
+{% block container_class %}p-0 m-0{% endblock %}
+{% block content %}
+  <section class="contact-hero">
+    <div class="contact-hero-overlay">
+      <div class="container-fluid text-center py-5 px-3 px-lg-5">
+        <div class="contact-breadcrumb mb-3">
+          <a href="{{ url_for('public.home') }}">Home</a> / <span>Contact Us</span>
+        </div>
+        <h1 class="contact-hero-title">Contact Information</h1>
+        <p class="contact-hero-subtitle">
+          Reach our team for booking help, support, and partnership inquiries.
+        </p>
+        <a href="#contact-form" class="btn btn-contact-hero mt-2">Contact Us</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="contact-main py-5">
+    <div class="container-fluid px-3 px-lg-5">
+      <div class="row g-4 align-items-start">
+        <div class="col-lg-4">
+          <div class="contact-info-card">
+            <div class="contact-info-item">
+              <div class="contact-icon"><i class="fa-solid fa-phone"></i></div>
+              <div>
+                <h6>Phone Number</h6>
+                <p>0614492135</p>
+              </div>
+            </div>
+            <div class="contact-info-item">
+              <div class="contact-icon"><i class="fa-solid fa-envelope"></i></div>
+              <div>
+                <h6>Email Address</h6>
+                <p>hoybookings4@gmail.com</p>
+              </div>
+            </div>
+            <div class="contact-info-item">
+              <div class="contact-icon"><i class="fa-solid fa-location-dot"></i></div>
+              <div>
+                <h6>Office Address</h6>
+                <p>Mogadishu, Somalia</p>
+              </div>
+            </div>
+            <div class="contact-info-item">
+              <div class="contact-icon"><i class="fa-solid fa-clock"></i></div>
+              <div>
+                <h6>Working Hours</h6>
+                <p>Mon - Sat: 08:00 AM - 08:00 PM</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-8">
+          <div class="contact-form-card" id="contact-form">
+            <h4 class="mb-3">Send Message</h4>
+            <p class="text-muted mb-4">Share your booking question and our support team will respond quickly.</p>
+            <form method="post" action="{{ url_for('public.contact') }}">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <input type="text" class="form-control" name="name" placeholder="Your Name" required />
+                </div>
+                <div class="col-md-6">
+                  <input type="email" class="form-control" name="email" placeholder="Your Email" required />
+                </div>
+                <div class="col-md-6">
+                  <input type="text" class="form-control" name="phone" placeholder="Phone Number" />
+                </div>
+                <div class="col-md-6">
+                  <input type="text" class="form-control" name="subject" placeholder="Subject" required />
+                </div>
+                <div class="col-12">
+                  <textarea class="form-control" rows="5" name="message" placeholder="Message" required></textarea>
+                </div>
+                <div class="col-12">
+                  <button type="submit" class="btn btn-contact-submit">Send Message</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="contact-map-section pb-5">
+    <div class="container-fluid px-3 px-lg-5">
+      <div class="text-center mb-4">
+        <h3>Find Us on Google Maps</h3>
+        <p class="text-muted mb-0">Visit our office location for in-person assistance and support.</p>
+      </div>
+      <div class="contact-map-wrap">
+        <iframe
+          title="HOYBOOKING Location Map"
+          src="https://www.google.com/maps?q=Mogadishu%2C%20Somalia&output=embed"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+        ></iframe>
+      </div>
+    </div>
+  </section>
+{% endblock %}
+

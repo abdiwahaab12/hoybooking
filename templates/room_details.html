@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Room {{ room.room_number }} - HOYBOOKING{% endblock %}
+{% block content %}
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div id="roomCarousel{{ room.id }}" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-indicators">
+          {% for img in gallery_images %}
+            <button type="button" data-bs-target="#roomCarousel{{ room.id }}" data-bs-slide-to="{{ loop.index0 }}" {% if loop.first %}class="active" aria-current="true"{% endif %} aria-label="Slide {{ loop.index }}"></button>
+          {% endfor %}
+        </div>
+        <div class="carousel-inner rounded">
+          {% for img in gallery_images %}
+            <div class="carousel-item {% if loop.first %}active{% endif %}">
+              <img
+                src="{% if img == '__fallback__' %}{{ url_for('public.creativo_assets', filename='img/about/about-wide-3.webp') }}{% else %}{{ url_for('static', filename=img) }}{% endif %}"
+                class="d-block w-100"
+                style="height:420px;object-fit:cover;"
+                alt="Room image {{ loop.index }}"
+              >
+            </div>
+          {% endfor %}
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#roomCarousel{{ room.id }}" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#roomCarousel{{ room.id }}" data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Next</span>
+        </button>
+      </div>
+
+      <div class="row row-cols-2 row-cols-md-4 g-2 mt-2">
+        {% for img in gallery_images %}
+          <div class="col room-thumb">
+            <a href="#" class="d-block" data-bs-target="#roomCarousel{{ room.id }}" data-bs-slide-to="{{ loop.index0 }}">
+              <img
+                src="{% if img == '__fallback__' %}{{ url_for('public.creativo_assets', filename='img/about/about-square-12.webp') }}{% else %}{{ url_for('static', filename=img) }}{% endif %}"
+                class="img-fluid rounded"
+                style="height:90px;width:100%;object-fit:cover;"
+                alt="Thumbnail {{ loop.index }}"
+              >
+            </a>
+          </div>
+        {% endfor %}
+      </div>
+      {% if room.room_type == 'apartment' %}
+        <div class="small text-muted mt-2">Family apartment gallery: living room, bedrooms, kitchen, bathroom.</div>
+      {% endif %}
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title mb-2">
+            {% if room.room_type == 'apartment' %}Family Apartment{% else %}{{ room.room_type|capitalize }} Room{% endif %}
+          </h4>
+          <p class="mb-1"><strong>Room #:</strong> {{ room.room_number }}</p>
+          <p class="mb-1"><strong>Price/night:</strong> ${{ "%.2f"|format(room.price|float) }}</p>
+          <p class="mb-1"><strong>Capacity:</strong> {{ room.capacity }} guests</p>
+          <p class="mb-3"><strong>Unit Rooms:</strong> {{ room.unit_rooms }}</p>
+          <p class="mb-3">
+            <strong>Status:</strong>
+            {% if is_available %}<span class="text-success">Available</span>{% else %}<span class="text-danger">Booked</span>{% endif %}
+          </p>
+
+          <form method="post" action="{{ url_for('booking.start_booking') }}">
+            <input type="hidden" name="room_id" value="{{ room.id }}" />
+            <div class="mb-2">
+              <label class="form-label">Check-in</label>
+              <input type="date" class="form-control" name="check_in_date" value="{{ check_in }}" required />
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Check-out</label>
+              <input type="date" class="form-control" name="check_out_date" value="{{ check_out }}" required />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Guests</label>
+              <input type="number" class="form-control" name="guest_count" min="1" max="{{ room.capacity }}" value="1" required />
+            </div>
+            <button class="btn btn-primary w-100" {% if not is_available %}disabled{% endif %}>
+              {% if is_available %}Book This Room{% else %}This room is not available now{% endif %}
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+

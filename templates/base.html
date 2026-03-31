@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}HOYBOOKING{% endblock %}</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Lato:wght@300;400;700;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ url_for('public.creativo_assets', filename='vendor/bootstrap/css/bootstrap.min.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('public.creativo_assets', filename='vendor/bootstrap-icons/bootstrap-icons.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('public.creativo_assets', filename='vendor/aos/aos.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('public.creativo_assets', filename='vendor/glightbox/css/glightbox.min.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('public.creativo_assets', filename='vendor/swiper/swiper-bundle.min.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('public.creativo_assets', filename='css/main.css') }}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  </head>
+  <body class="index-page">
+    {% set hide_main_header = (request.endpoint and request.endpoint.startswith('admin.')) %}
+    {% set home_full_bleed = (request.endpoint == 'public.home') %}
+    {% if not hide_main_header %}
+    <header id="header" class="header d-flex align-items-center fixed-top">
+      <div class="container position-relative d-flex align-items-center justify-content-between gap-3">
+        <div class="d-flex align-items-center">
+          <a href="{{ url_for('public.home') }}" class="logo d-flex align-items-center">
+            <h1 class="sitename">HOYBOOKING</h1>
+          </a>
+        </div>
+
+        <nav id="navmenu" class="navmenu mx-auto">
+          <ul>
+            <li><a href="{{ url_for('public.home') }}" class="active">Home</a></li>
+            <li><a href="{{ url_for('public.rooms') }}">Rooms</a></li>
+            <li><a href="{{ url_for('public.about') }}">About</a></li>
+            <li><a href="{{ url_for('public.contact') }}">Contact</a></li>
+            {% if current_user and current_user.role == 'customer' %}
+              <li><a href="{{ url_for('booking.customer_dashboard') }}">Dashboard</a></li>
+            {% endif %}
+            {% if current_user and current_user.role == 'customer' %}
+              <li class="d-xl-none"><a href="{{ url_for('auth.logout') }}">Logout</a></li>
+            {% elif not current_user %}
+              <li class="d-xl-none"><a href="{{ url_for('auth.login') }}">Login</a></li>
+              <li class="d-xl-none"><a href="{{ url_for('auth.register') }}">Register</a></li>
+            {% endif %}
+          </ul>
+          <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+        </nav>
+        <div class="d-none d-xl-flex align-items-center gap-2">
+          {% if current_user and current_user.role == 'customer' %}
+            <a class="btn btn-sm btn-outline-light" href="{{ url_for('auth.logout') }}">Logout</a>
+          {% elif not current_user %}
+            <a class="btn btn-sm btn-light" href="{{ url_for('auth.login') }}">Login</a>
+            <a class="btn btn-sm btn-success" href="{{ url_for('auth.register') }}">Register</a>
+          {% endif %}
+        </div>
+        <div class="d-xl-none"></div>
+      </div>
+    </header>
+    {% endif %}
+
+    <main class="main">
+      <section class="section" style="padding-top: {{ '0' if hide_main_header or home_full_bleed else '100px' }};">
+        <div class="{% block page_wrapper_class %}container{% endblock %} {% block container_class %}{% endblock %}">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, msg in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+              {{ msg }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+        </div>
+      </section>
+    </main>
+
+    <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center">
+      <i class="bi bi-arrow-up-short"></i>
+    </a>
+    <div id="preloader"></div>
+
+    <script src="{{ url_for('public.creativo_assets', filename='vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ url_for('public.creativo_assets', filename='vendor/aos/aos.js') }}"></script>
+    <script src="{{ url_for('public.creativo_assets', filename='vendor/glightbox/js/glightbox.min.js') }}"></script>
+    <script src="{{ url_for('public.creativo_assets', filename='vendor/swiper/swiper-bundle.min.js') }}"></script>
+    <script src="{{ url_for('public.creativo_assets', filename='vendor/purecounter/purecounter_vanilla.js') }}"></script>
+    <script src="{{ url_for('public.creativo_assets', filename='vendor/imagesloaded/imagesloaded.pkgd.min.js') }}"></script>
+    <script src="{{ url_for('public.creativo_assets', filename='vendor/isotope-layout/isotope.pkgd.min.js') }}"></script>
+    <script src="{{ url_for('public.creativo_assets', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  </body>
+</html>
+

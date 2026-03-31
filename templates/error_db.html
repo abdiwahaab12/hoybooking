@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Database Error - HOYBOOKING{% endblock %}
+{% block content %}
+  <h2>Database connection error</h2>
+  <p class="muted">
+    HOYBOOKING could not connect to MySQL. Please check your MySQL server and environment variables.
+  </p>
+  {% if "using password: NO" in error %}
+    <div class="alert alert-warning">
+      MySQL rejected the current credentials (blank password). If your MySQL requires a password, set
+      <code>HOYBOOKING_DB_PASSWORD</code> in the project-root <code>.env</code>.
+    </div>
+  {% endif %}
+  <div class="alert alert-danger">
+    <strong>Details:</strong> {{ error }}
+  </div>
+  <p class="muted">
+    Check: <code>HOYBOOKING_DB_HOST</code>, <code>HOYBOOKING_DB_PORT</code>, <code>HOYBOOKING_DB_USER</code>,
+    <code>HOYBOOKING_DB_PASSWORD</code>, <code>HOYBOOKING_DB_NAME</code>.
+  </p>
+  <a class="btn btn-primary" href="{{ url_for('public.home') }}">Go Home</a>
+{% endblock %}
+

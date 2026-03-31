@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Contact Messages - HOYBOOKING{% endblock %}
+{% block page_wrapper_class %}container-fluid{% endblock %}
+{% block container_class %}p-0 m-0{% endblock %}
+{% block content %}
+  <div class="admin-ui-wrap">
+    <div class="row g-3">
+      <div class="col-12 col-lg-3 col-xl-2">
+        <aside class="admin-ui-sidebar p-3 h-100">
+          <div class="admin-ui-profile d-flex align-items-center gap-2 mb-4">
+            <div class="admin-ui-avatar"><i class="fa-solid fa-user-shield"></i></div>
+            <div><div class="fw-semibold text-white">Admin Panel</div><div class="small text-white-50">HOYBOOKING</div></div>
+          </div>
+          <nav class="nav flex-column gap-2">
+            <a class="admin-ui-nav-link" href="{{ url_for('admin.admin_dashboard') }}"><i class="fa-solid fa-table-columns me-2"></i>Dashboard</a>
+            <a class="admin-ui-nav-link" href="{{ url_for('admin.admin_rooms') }}"><i class="fa-solid fa-bed me-2"></i>Rooms</a>
+            <a class="admin-ui-nav-link" href="{{ url_for('admin.admin_bookings') }}"><i class="fa-solid fa-clipboard-list me-2"></i>Bookings</a>
+            <a class="admin-ui-nav-link" href="{{ url_for('admin.admin_users') }}"><i class="fa-solid fa-users me-2"></i>Users</a>
+            <a class="admin-ui-nav-link" href="{{ url_for('admin.admin_payments') }}"><i class="fa-solid fa-receipt me-2"></i>Payments</a>
+            <a class="admin-ui-nav-link active" href="{{ url_for('admin.admin_contact_messages') }}"><i class="fa-solid fa-envelope me-2"></i>Contact</a>
+            <a class="admin-ui-nav-link mt-3" href="{{ url_for('auth.logout') }}"><i class="fa-solid fa-arrow-right-from-bracket me-2"></i>Logout</a>
+          </nav>
+        </aside>
+      </div>
+      <div class="col-12 col-lg-9 col-xl-10">
+        <div class="admin-ui-header mb-3"><h3 class="mb-0">Customer Contact Messages</h3></div>
+        <div class="admin-ui-surface p-3 p-lg-4">
+          {% if messages|length == 0 %}
+            <div class="alert alert-info mb-0">No messages yet.</div>
+          {% else %}
+            <div class="table-responsive">
+              <table class="table table-striped align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Subject</th>
+                    <th>Message</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for m in messages %}
+                    <tr>
+                      <td>#{{ m.id }}</td>
+                      <td>{{ m.name }}</td>
+                      <td>{{ m.email }}</td>
+                      <td>{{ m.phone or '-' }}</td>
+                      <td>{{ m.subject }}</td>
+                      <td style="max-width: 320px; white-space: normal;">{{ m.message }}</td>
+                      <td>{{ m.created_at.strftime('%Y-%m-%d %H:%M') if m.created_at else '-' }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+

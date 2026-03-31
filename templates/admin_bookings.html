@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Admin Bookings - HOYBOOKING{% endblock %}
+{% block page_wrapper_class %}container-fluid{% endblock %}
+{% block container_class %}p-0 m-0{% endblock %}
+{% block content %}
+  <div class="admin-ui-wrap">
+    <div class="row g-3">
+      <div class="col-12 col-lg-3 col-xl-2">
+        <aside class="admin-ui-sidebar p-3 h-100">
+          <div class="admin-ui-profile d-flex align-items-center gap-2 mb-4">
+            <div class="admin-ui-avatar"><i class="fa-solid fa-user-shield"></i></div>
+            <div><div class="fw-semibold text-white">Admin Panel</div><div class="small text-white-50">HOYBOOKING</div></div>
+          </div>
+          <nav class="nav flex-column gap-2">
+            <a class="admin-ui-nav-link" href="{{ url_for('admin.admin_dashboard') }}"><i class="fa-solid fa-table-columns me-2"></i>Dashboard</a>
+            <a class="admin-ui-nav-link" href="{{ url_for('admin.admin_rooms') }}"><i class="fa-solid fa-bed me-2"></i>Rooms</a>
+            <a class="admin-ui-nav-link active" href="{{ url_for('admin.admin_bookings') }}"><i class="fa-solid fa-clipboard-list me-2"></i>Bookings</a>
+            <a class="admin-ui-nav-link" href="{{ url_for('admin.admin_users') }}"><i class="fa-solid fa-users me-2"></i>Users</a>
+            <a class="admin-ui-nav-link" href="{{ url_for('admin.admin_payments') }}"><i class="fa-solid fa-receipt me-2"></i>Payments</a>
+            <a class="admin-ui-nav-link" href="{{ url_for('admin.admin_contact_messages') }}"><i class="fa-solid fa-envelope me-2"></i>Contact</a>
+            <a class="admin-ui-nav-link mt-3" href="{{ url_for('auth.logout') }}"><i class="fa-solid fa-arrow-right-from-bracket me-2"></i>Logout</a>
+          </nav>
+        </aside>
+      </div>
+      <div class="col-12 col-lg-9 col-xl-10">
+        <div class="admin-ui-header mb-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+          <h3 class="mb-0">All Bookings</h3>
+          <div class="d-flex gap-2 flex-wrap">
+            <a class="btn btn-outline-secondary" href="{{ url_for('admin.admin_bookings', status='confirmed') }}">Confirmed</a>
+            <a class="btn btn-outline-secondary" href="{{ url_for('admin.admin_bookings', status='cancelled') }}">Cancelled</a>
+            <a class="btn btn-outline-secondary" href="{{ url_for('admin.admin_bookings') }}">All</a>
+          </div>
+        </div>
+        <div class="admin-ui-surface p-3 p-lg-4">
+          {% if bookings|length == 0 %}
+            <div class="alert alert-info mb-0">No bookings found.</div>
+          {% else %}
+            <div class="table-responsive">
+              <table class="table table-striped align-middle mb-0">
+                <thead>
+                  <tr><th>ID</th><th>User</th><th>Room</th><th>Dates</th><th>Total</th><th>Status</th><th style="width:240px;">Update</th></tr>
+                </thead>
+                <tbody>
+                  {% for b in bookings %}
+                    <tr>
+                      <td>#{{ b.id }}</td>
+                      <td>{{ b.user.name }}<br/><span class="muted">{{ b.user.email }}</span></td>
+                      <td>{{ b.room.room_number }}<br/><span class="muted">{{ b.room.room_type|capitalize }}</span></td>
+                      <td>{{ b.check_in_date }}<br/>to {{ b.check_out_date }}</td>
+                      <td>{{ "%.2f"|format(b.total_price|float) }}</td>
+                      <td>{{ b.status|capitalize }}</td>
+                      <td>
+                        <form method="post" action="{{ url_for('admin.admin_booking_update_status', booking_id=b.id) }}" class="d-flex gap-2 align-items-center">
+                          <select class="form-select form-select-sm" name="status" style="width:170px;">
+                            <option value="confirmed" {% if b.status == 'confirmed' %}selected{% endif %}>Confirmed</option>
+                            <option value="cancelled" {% if b.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                          </select>
+                          <button class="btn btn-sm btn-primary" type="submit">Save</button>
+                        </form>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+

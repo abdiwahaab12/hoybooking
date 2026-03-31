@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}Page Not Found - HOYBOOKING{% endblock %}
+{% block content %}
+  <h2>404 - Page not found</h2>
+  <p class="muted">The page you requested does not exist.</p>
+  <a class="btn btn-primary" href="{{ url_for('public.home') }}">Go Home</a>
+{% endblock %}
+

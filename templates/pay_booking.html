@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Payment - HOYBOOKING{% endblock %}
+{% block content %}
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-3">
+    <div>
+      <h2 class="mb-1">Simulated Payment</h2>
+      <div class="muted">Choose a payment option and confirm.</div>
+    </div>
+    <div class="text-end">
+      <div class="muted small">Total</div>
+      <div class="fs-3 fw-bold">${{ "%.2f"|format(booking.total_price|float) }}</div>
+    </div>
+  </div>
+
+  <div class="room-card p-4 p-md-5">
+    <p class="muted mb-2">
+      Booking #{{ booking.id }} | Room {{ booking.room.room_number }} | {{ booking.room.room_type|capitalize }}
+    </p>
+    <p class="mb-3">
+      <strong>Dates:</strong> {{ booking.check_in_date }} to {{ booking.check_out_date }}
+    </p>
+
+    {% if payment and payment.payment_status == 'paid' %}
+      <div class="alert alert-success">Payment already marked as paid (simulated).</div>
+      <a class="btn btn-primary" href="{{ url_for('booking.customer_dashboard') }}">Back to Dashboard</a>
+    {% else %}
+      <form method="post">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Payment Method</label>
+            <select class="form-select" name="payment_method" required>
+              <option value="evc_plus">EVC Plus</option>
+              <option value="edahab">Edahab</option>
+              <option value="salaam_bank">Salaam Bank</option>
+            </select>
+          </div>
+          <div class="col-md-6 d-flex align-items-end">
+            <button class="btn btn-primary w-100" type="submit">
+              <i class="fa-solid fa-credit-card me-2"></i> Pay Now (Simulated)
+            </button>
+          </div>
+          <div class="col-12">
+            <a class="btn btn-outline-secondary" href="{{ url_for('booking.customer_dashboard') }}">Back to Dashboard</a>
+          </div>
+        </div>
+      </form>
+    {% endif %}
+  </div>
+{% endblock %}
+

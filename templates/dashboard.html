@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - HOYBOOKING{% endblock %}
+{% block content %}
+  {% set ns = namespace(confirmed_count=0, paid_total=0.0) %}
+  {% for b in bookings %}
+    {% if b.status == 'confirmed' %}{% set ns.confirmed_count = ns.confirmed_count + 1 %}{% endif %}
+    {% for p in b.payments %}
+      {% if p.payment_status == 'paid' %}
+        {% set ns.paid_total = ns.paid_total + (p.amount|float) %}
+      {% endif %}
+    {% endfor %}
+  {% endfor %}
+
+  <div class="row g-4 customer-dash-wrap">
+    <div class="col-lg-3">
+      <div class="sidebar p-3 customer-dash-sidebar">
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center customer-avatar">
+            <i class="fa-solid fa-user"></i>
+          </div>
+          <div>
+            <div class="fw-semibold">{{ current_user.name }}</div>
+            <div class="muted small">{{ current_user.email }}</div>
+          </div>
+        </div>
+
+        <ul class="nav nav-pills flex-column gap-2" id="dashTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabBookings" type="button" role="tab">
+              <i class="fa-solid fa-bed me-2"></i> My Bookings
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabPayments" type="button" role="tab">
+              <i class="fa-solid fa-receipt me-2"></i> Payment History
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabProfile" type="button" role="tab">
+              <i class="fa-solid fa-id-card me-2"></i> Profile
+            </button>
+          </li>
+        </ul>
+
+        <div class="mt-3">
+          <a class="btn btn-outline-secondary w-100" href="{{ url_for('public.rooms') }}">
+            <i class="fa-solid fa-store me-2"></i> Book More
+          </a>
+        </div>
+        <div class="mt-2">
+          <a class="btn btn-outline-primary w-100" href="{{ url_for('public.contact') }}">
+            <i class="fa-solid fa-envelope me-2"></i> Contact
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-9">
+      <div class="room-card p-4 mb-4 customer-hero-card">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+          <div>
+            <h2 class="mb-0">Dashboard</h2>
+            <div class="muted">Your reservations, payments, and activity.</div>
+          </div>
+          <div class="d-flex gap-2 flex-wrap customer-kpi-grid">
+            <div class="glass-card p-3 customer-kpi">
+              <div class="muted small">Confirmed bookings</div>
+              <div class="fs-4 fw-bold">{{ ns.confirmed_count }}</div>
+            </div>
+            <div class="glass-card p-3 customer-kpi">
+              <div class="muted small">Total paid</div>
+              <div class="fs-4 fw-bold">${{ "%.2f"|format(ns.paid_total) }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="dashTabsContent">
+        <div class="tab-pane fade show active" id="tabBookings" role="tabpanel">
+          <div class="room-card p-4 mb-4">
+            <h5 class="mb-3">My Bookings</h5>
+
+            {% if bookings|length == 0 %}
+              <div class="alert alert-info">You have no bookings yet.</div>
+            {% endif %}
+
+            {% for b in bookings %}
+              {% set p = b.payments|first %}
+              <div class="border rounded p-3 mb-3 customer-item-card">
+                <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+                  <div>
+                    <strong>Room:</strong> {{ b.room.room_number }} ({{ b.room.room_type|capitalize }})<br/>
+                    <strong>Dates:</strong> {{ b.check_in_date }} to {{ b.check_out_date }}<br/>
+                    <strong>Total:</strong> {{ "%.2f"|format(b.total_price|float) }}<br/>
+                    <strong>Status:</strong> {{ b.status|capitalize }}
+                  </div>
+                  <div>
+                    <div class="muted small">
+                      <strong>Payment:</strong>
+                      {% if p %}
+                        {{ p.payment_status|capitalize }}
+                        {% if p.payment_method %} ({{ p.payment_method }}){% endif %}
+                      {% else %}
+                        Unpaid
+                      {% endif %}
+                    </div>
+                    <div class="mt-2 d-flex gap-2 flex-wrap">
+                      {% if b.status != 'cancelled' %}
+                        {% if not p or p.payment_status != 'paid' %}
+                          <a class="btn btn-sm btn-primary" href="{{ url_for('booking.pay_booking', booking_id=b.id) }}">
+                            <i class="fa-solid fa-credit-card me-1"></i> Pay
+                          </a>
+                        {% endif %}
+                        <form method="post" action="{{ url_for('booking.cancel_booking', booking_id=b.id) }}">
+                          <button class="btn btn-sm btn-outline-danger" type="submit" onclick="return confirm('Cancel this booking?')">
+                            <i class="fa-solid fa-xmark me-1"></i> Cancel
+                          </button>
+                        </form>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="tab-pane fade" id="tabPayments" role="tabpanel">
+          <div class="room-card p-4">
+            <h5 class="mb-3">Payment History</h5>
+            {% if bookings|length == 0 %}
+              <div class="alert alert-info">No payment history yet.</div>
+            {% else %}
+              {% set payment_list = [] %}
+              {% for b in bookings %}
+                {% for p in b.payments %}
+                  {% if p %}
+                    <div class="border rounded p-3 mb-3 customer-item-card">
+                      <div class="d-flex justify-content-between gap-3 flex-wrap">
+                        <div>
+                          <div class="fw-semibold">Booking #{{ b.id }}</div>
+                          <div class="muted small">
+                            Room {{ b.room.room_number }} | {{ b.check_in_date }} - {{ b.check_out_date }}
+                          </div>
+                        </div>
+                        <div class="text-end">
+                          <div class="fw-semibold">${{ "%.2f"|format(p.amount|float) }}</div>
+                          <div class="muted small">{{ p.payment_status|capitalize }}</div>
+                        </div>
+                      </div>
+                      <div class="muted small mt-2">Method: {{ p.payment_method or 'N/A' }}</div>
+                    </div>
+                  {% endif %}
+                {% endfor %}
+              {% endfor %}
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="tab-pane fade" id="tabProfile" role="tabpanel">
+          <div class="room-card p-4">
+            <h5 class="mb-3">Profile</h5>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="muted small">Name</div>
+                <div class="fw-semibold">{{ current_user.name }}</div>
+              </div>
+              <div class="col-md-6">
+                <div class="muted small">Email</div>
+                <div class="fw-semibold">{{ current_user.email }}</div>
+              </div>
+              <div class="col-md-6">
+                <div class="muted small">Role</div>
+                <div class="fw-semibold">{{ current_user.role|capitalize }}</div>
+              </div>
+              <div class="col-md-6">
+                <div class="muted small">Bookings</div>
+                <div class="fw-semibold">{{ bookings|length }}</div>
+              </div>
+            </div>
+            <div class="mt-3">
+              <a class="btn btn-outline-secondary" href="{{ url_for('auth.logout') }}">Logout</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="room-card p-4 mt-4">
+        <h5 class="mb-3">Search Available Rooms</h5>
+        <form class="row g-2 align-items-end" method="get" action="{{ url_for('booking.customer_dashboard') }}">
+          <div class="col-md-3">
+            <label class="form-label">Check-in</label>
+            <input class="form-control" type="date" name="check_in" value="{{ check_in }}" />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Check-out</label>
+            <input class="form-control" type="date" name="check_out" value="{{ check_out }}" />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Room Type</label>
+            <select class="form-select" name="room_type">
+              <option value="">All</option>
+              {% for t in room_types %}
+                <option value="{{ t }}" {% if selected_room_type == t %}selected{% endif %}>{{ t|capitalize }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-3">
+            <button class="btn btn-primary w-100" type="submit">Search</button>
+          </div>
+        </form>
+
+        {% if message %}
+          <div class="alert alert-warning mt-3">{{ message }}</div>
+        {% endif %}
+
+        <div class="mt-3">
+          {% if rooms|length == 0 %}
+            <div class="alert alert-info">No available rooms for the selected dates.</div>
+          {% endif %}
+
+          <div class="row g-3">
+            {% for room in rooms %}
+              <div class="col-md-4">
+                <div class="p-3 room-card hoy-card-hover h-100 customer-room-mini">
+                  <div class="fw-semibold mb-1">Room {{ room.room_number }}</div>
+                  <div class="muted mb-2">{{ room.room_type|capitalize }}</div>
+                  <div class="mb-3">
+                    <strong>Price:</strong> {{ "%.2f"|format(room.price|float) }} / night
+                  </div>
+                  {% if check_in and check_out %}
+                    <form method="post" action="{{ url_for('booking.start_booking') }}">
+                      <input type="hidden" name="room_id" value="{{ room.id }}" />
+                      <input type="hidden" name="check_in_date" value="{{ check_in }}" />
+                      <input type="hidden" name="check_out_date" value="{{ check_out }}" />
+                      <button class="btn btn-success w-100" type="submit">
+                        <i class="fa-solid fa-bed me-2"></i> Book
+                      </button>
+                    </form>
+                  {% else %}
+                    <button class="btn btn-secondary w-100" disabled>Select dates to book</button>
+                  {% endif %}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+

@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard - HOYBOOKING{% endblock %}
+{% block page_wrapper_class %}container-fluid{% endblock %}
+{% block container_class %}p-0 m-0{% endblock %}
+{% block content %}
+  <div class="admin-ui-wrap">
+    <div class="row g-3">
+      <div class="col-12 col-lg-3 col-xl-2">
+        <aside class="admin-ui-sidebar p-3 h-100">
+          <div class="admin-ui-profile d-flex align-items-center gap-2 mb-4">
+            <div class="admin-ui-avatar">
+              <i class="fa-solid fa-user-shield"></i>
+            </div>
+            <div>
+              <div class="fw-semibold text-white">Admin Panel</div>
+              <div class="small text-white-50">HOYBOOKING</div>
+            </div>
+          </div>
+
+          <nav class="nav flex-column gap-2">
+            <a class="admin-ui-nav-link active" href="{{ url_for('admin.admin_dashboard') }}">
+              <i class="fa-solid fa-table-columns me-2"></i>Dashboard
+            </a>
+            <a class="admin-ui-nav-link" href="{{ url_for('admin.admin_rooms') }}">
+              <i class="fa-solid fa-bed me-2"></i>Rooms
+            </a>
+            <a class="admin-ui-nav-link" href="{{ url_for('admin.admin_bookings') }}">
+              <i class="fa-solid fa-clipboard-list me-2"></i>Bookings
+            </a>
+            <a class="admin-ui-nav-link" href="{{ url_for('admin.admin_users') }}">
+              <i class="fa-solid fa-users me-2"></i>Users
+            </a>
+            <a class="admin-ui-nav-link" href="{{ url_for('admin.admin_payments') }}">
+              <i class="fa-solid fa-receipt me-2"></i>Payments
+            </a>
+            <a class="admin-ui-nav-link" href="{{ url_for('admin.admin_contact_messages') }}">
+              <i class="fa-solid fa-envelope me-2"></i>Contact
+            </a>
+            <a class="admin-ui-nav-link mt-3" href="{{ url_for('auth.logout') }}">
+              <i class="fa-solid fa-arrow-right-from-bracket me-2"></i>Logout
+            </a>
+          </nav>
+        </aside>
+      </div>
+
+      <div class="col-12 col-lg-9 col-xl-10">
+        <div class="admin-ui-main">
+          <div class="admin-ui-header mb-3">
+            <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
+              <h3 class="mb-0">Welcome Admin!</h3>
+              <div class="admin-ui-search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" placeholder="Search" />
+              </div>
+            </div>
+          </div>
+
+          <div class="admin-ui-surface p-3 p-lg-4">
+            <h5 class="mb-3">Overview</h5>
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-6 col-xl-3">
+                <div class="admin-ui-stat-card">
+                  <div class="admin-ui-stat-icon"><i class="fa-solid fa-users"></i></div>
+                  <div>
+                    <div class="admin-ui-stat-value">{{ users_count }}</div>
+                    <div class="small text-secondary">Total Users</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6 col-xl-3">
+                <div class="admin-ui-stat-card">
+                  <div class="admin-ui-stat-icon"><i class="fa-solid fa-bed"></i></div>
+                  <div>
+                    <div class="admin-ui-stat-value">{{ rooms_count }}</div>
+                    <div class="small text-secondary">Total Rooms</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6 col-xl-3">
+                <div class="admin-ui-stat-card">
+                  <div class="admin-ui-stat-icon"><i class="fa-solid fa-calendar-check"></i></div>
+                  <div>
+                    <div class="admin-ui-stat-value">{{ bookings_count }}</div>
+                    <div class="small text-secondary">Total Bookings</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6 col-xl-3">
+                <div class="admin-ui-stat-card">
+                  <div class="admin-ui-stat-icon"><i class="fa-solid fa-wallet"></i></div>
+                  <div>
+                    <div class="admin-ui-stat-value">${{ "%.0f"|format(revenue_paid|float) }}</div>
+                    <div class="small text-secondary">Revenue Paid</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-3">
+              <div class="col-12 col-xl-4">
+                <div class="admin-ui-panel p-3 h-100">
+                  <h6 class="mb-2">Users Summary</h6>
+                  <canvas id="adminUsersDonut" height="180"></canvas>
+                </div>
+              </div>
+              <div class="col-12 col-xl-4">
+                <div class="admin-ui-panel p-3 h-100">
+                  <h6 class="mb-2">Booking Trend</h6>
+                  <canvas id="adminTrendChart" height="180"></canvas>
+                </div>
+              </div>
+              <div class="col-12 col-xl-4">
+                <div class="admin-ui-panel p-3 h-100">
+                  <h6 class="mb-2">Top Modules Activity</h6>
+                  <canvas id="adminActivityChart" height="180"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const donut = document.getElementById("adminUsersDonut");
+    if (donut) {
+      new Chart(donut, {
+        type: "doughnut",
+        data: {
+          labels: ["Users", "Rooms", "Bookings"],
+          datasets: [{
+            data: [{{ users_count }}, {{ rooms_count }}, {{ bookings_count }}],
+            backgroundColor: ["#6f8fa3", "#8cb8ce", "#3c6b89"],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { position: "bottom" } }
+        }
+      });
+    }
+
+    const trend = document.getElementById("adminTrendChart");
+    if (trend) {
+      new Chart(trend, {
+        type: "line",
+        data: {
+          labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+          datasets: [{
+            label: "Bookings",
+            data: [
+              Math.max(1, {{ confirmed_count }} - 3),
+              Math.max(1, {{ confirmed_count }} - 2),
+              Math.max(1, {{ confirmed_count }} - 1),
+              Math.max(1, {{ confirmed_count }}),
+              Math.max(1, {{ confirmed_count }} + 1),
+              Math.max(1, {{ confirmed_count }} + 2)
+            ],
+            tension: 0.4,
+            fill: true,
+            borderColor: "#3c6b89",
+            backgroundColor: "rgba(60, 107, 137, 0.16)",
+            pointRadius: 3
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
+
+    const activity = document.getElementById("adminActivityChart");
+    if (activity) {
+      new Chart(activity, {
+        type: "bar",
+        data: {
+          labels: ["Rooms", "Bookings", "Users", "Payments"],
+          datasets: [{
+            data: [{{ rooms_count }}, {{ bookings_count }}, {{ users_count }}, {{ payments_count }}],
+            borderWidth: 0,
+            backgroundColor: ["#7ca5bb", "#4f7892", "#9bc2d7", "#2f5d79"],
+            borderRadius: 8
+          }]
+        },
+        options: {
+          indexAxis: "y",
+          responsive: true,
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
+  </script>
+{% endblock %}
+

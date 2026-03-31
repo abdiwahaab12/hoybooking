@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+{% block title %}Rooms - HOYBOOKING{% endblock %}
+{% block content %}
+  {% macro room_image(room) -%}
+    {%- if room.images and room.images|length > 0 -%}
+      {{ url_for('static', filename=room.images[0].image_path) }}
+    {%- elif room.image -%}
+      {{ url_for('static', filename=room.image) }}
+    {%- elif room.room_type == 'single' -%}
+      {{ url_for('public.creativo_assets', filename='img/about/about-square-12.webp') }}
+    {%- elif room.room_type == 'double' -%}
+      {{ url_for('public.creativo_assets', filename='img/about/about-14.webp') }}
+    {%- elif room.room_type == 'apartment' -%}
+      {{ url_for('public.creativo_assets', filename='img/portfolio/portfolio-1.webp') }}
+    {%- else -%}
+      {{ url_for('public.creativo_assets', filename='img/about/about-wide-3.webp') }}
+    {%- endif -%}
+  {%- endmacro %}
+
+  {% macro room_gradient(room_type) -%}
+    {%- if room_type == 'single' -%}
+      {%- set c1 = '#0b5ed7' -%}
+      {%- set c2 = '#22c1c3' -%}
+    {%- elif room_type == 'double' -%}
+      {%- set c1 = '#6610f2' -%}
+      {%- set c2 = '#0dcaf0' -%}
+    {%- elif room_type == 'apartment' -%}
+      {%- set c1 = '#fd7e14' -%}
+      {%- set c2 = '#ffc107' -%}
+    {%- else -%}
+      {%- set c1 = '#198754' -%}
+      {%- set c2 = '#20c997' -%}
+    {%- endif -%}
+    {%- set label = room_type|capitalize -%}
+    {%- set svg = '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="480"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="' ~ c1 ~ '" offset="0"/><stop stop-color="' ~ c2 ~ '" offset="1"/></linearGradient></defs><rect width="800" height="480" fill="url(#g)"/><text x="50%" y="55%" font-size="54" text-anchor="middle" fill="white" font-family="Arial" font-weight="700">HOY ' ~ label ~ '</text></svg>' -%}
+    {{ 'data:image/svg+xml,' ~ (svg|urlencode) }}
+  {%- endmacro %}
+
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-3">
+    <div>
+      <h2 class="mb-1">Rooms</h2>
+      <div class="muted">Search, filter, and book from the live database.</div>
+    </div>
+    <div class="muted small">
+      {% if message %}{{ message }}{% endif %}
+    </div>
+  </div>
+
+  <form class="room-card p-3 mb-4" method="get" action="{{ url_for('public.rooms') }}">
+    <div class="row g-2 align-items-end">
+      <div class="col-md-3">
+        <label class="form-label">Check-in</label>
+        <input class="form-control" type="date" name="check_in" value="{{ check_in }}" />
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Check-out</label>
+        <input class="form-control" type="date" name="check_out" value="{{ check_out }}" />
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Room Type</label>
+        <select class="form-select" name="room_type">
+          <option value="">All</option>
+          {% for t in room_types %}
+            <option value="{{ t }}" {% if selected_room_type == t %}selected{% endif %}>{{ t|capitalize }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Search</label>
+        <input class="form-control" name="q" value="{{ q or '' }}" placeholder="Room number or type" />
+      </div>
+      <div class="col-md-2">
+        <label class="form-label">Min Price</label>
+        <input class="form-control" name="price_min" type="number" step="1" min="0" value="{{ price_min or '' }}" placeholder="0" />
+      </div>
+      <div class="col-md-1">
+        <label class="form-label">Max</label>
+        <input class="form-control" name="price_max" type="number" step="1" min="0" value="{{ price_max or '' }}" placeholder="..." />
+      </div>
+      <div class="col-12">
+        <button class="btn btn-primary w-100" type="submit">
+          <i class="fa-solid fa-magnifying-glass me-2"></i> Search
+        </button>
+      </div>
+    </div>
+  </form>
+
+  {% if rooms|length == 0 %}
+    <div class="alert alert-info glass-card">No rooms available for the selected dates/filters.</div>
+  {% else %}
+    <div class="row g-4">
+      {% for room in rooms %}
+        <div class="col-md-6 col-lg-4">
+          {% set is_avail = room_availability.get(room.id, false) %}
+          <div class="room-card hoy-card-hover h-100 {% if not is_avail %}opacity-50{% endif %}">
+            <div class="room-img position-relative">
+              <img
+                class="position-absolute start-0 top-0 w-100 h-100"
+                style="object-fit: cover;"
+                src="{{ room_image(room) }}"
+                alt="Room image"
+              />
+              <div class="position-absolute top-0 end-0 m-3">
+                <span class="badge rounded-pill text-bg-primary">
+                  {% if room.room_type == 'apartment' %}Family Apartment{% else %}{{ room.room_type|capitalize }}{% endif %}
+                </span>
+              </div>
+              <div class="position-absolute bottom-0 start-0 p-3 text-white">
+                <div class="fw-bold">Room {{ room.room_number }}</div>
+                <div class="small opacity-75">HOY Location • {{ room.room_type|capitalize }}</div>
+              </div>
+            </div>
+            <div class="p-3">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <div class="muted small">Price per night</div>
+                  <div class="fs-4 fw-bold">${{ "%.2f"|format(room.price|float) }}</div>
+                </div>
+                <div class="text-end">
+                  <div class="muted small">Status</div>
+                  <div class="fw-semibold">
+                    {% if room.status == 'available' %}Available{% else %}Not Available{% endif %}
+                  </div>
+                </div>
+              </div>
+              <div class="small muted mt-2">
+                Capacity: {{ room.capacity }} guests • Rooms: {{ room.unit_rooms }}
+                {% if room.room_type == 'apartment' %} • Recommended for families{% endif %}
+              </div>
+              <div class="small muted">
+                {{ room.images|length if room.images else 0 }}+ photos
+              </div>
+
+              {% if check_in and check_out %}
+                {% if is_avail %}
+                  <button class="btn btn-primary w-100 mt-3" type="button" data-bs-toggle="modal" data-bs-target="#bookRoomModal{{ room.id }}">
+                    <i class="fa-solid fa-bed me-2"></i> Book Now
+                  </button>
+                  <a class="btn btn-outline-primary w-100 mt-2" href="{{ url_for('public.room_details', room_id=room.id, check_in=check_in, check_out=check_out) }}">
+                    <i class="fa-solid fa-images me-2"></i> View Room
+                  </a>
+                {% else %}
+                  <button class="btn btn-secondary w-100" type="button" disabled>
+                    <i class="fa-solid fa-ban me-2"></i> Not Available
+                  </button>
+                  <div class="text-danger small mt-2">This room is not available now</div>
+                  <a class="btn btn-outline-secondary w-100 mt-2" href="{{ url_for('public.room_details', room_id=room.id, check_in=check_in, check_out=check_out) }}">
+                    <i class="fa-solid fa-images me-2"></i> View Room
+                  </a>
+                {% endif %}
+              {% else %}
+                <button class="btn btn-secondary w-100" disabled>Select dates to enable booking</button>
+                <a class="btn btn-outline-primary w-100 mt-2" href="{{ url_for('public.room_details', room_id=room.id) }}">
+                  <i class="fa-solid fa-images me-2"></i> View Room
+                </a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        {% if check_in and check_out and is_avail %}
+          <div class="modal fade" id="bookRoomModal{{ room.id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Book Room {{ room.room_number }}</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="post" action="{{ url_for('booking.start_booking') }}">
+                  <div class="modal-body">
+                    <img src="{{ room_image(room) }}" class="img-fluid rounded mb-3" style="height:180px;width:100%;object-fit:cover;" alt="Room image" />
+                    <div class="small muted mb-2">
+                      {% if room.room_type == 'apartment' %}Family Apartment{% else %}{{ room.room_type|capitalize }}{% endif %}
+                      • ${{ "%.2f"|format(room.price|float) }} / night
+                    </div>
+                    <div class="mb-2">
+                      <label class="form-label">Number of guests</label>
+                      <input type="number" class="form-control" name="guest_count" min="1" max="{{ room.capacity }}" value="1" required />
+                      <div class="small muted">Maximum {{ room.capacity }} guests.</div>
+                    </div>
+                    <input type="hidden" name="room_id" value="{{ room.id }}" />
+                    <input type="hidden" name="check_in_date" value="{{ check_in }}" />
+                    <input type="hidden" name="check_out_date" value="{{ check_out }}" />
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Continue Booking</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endblock %}
+
