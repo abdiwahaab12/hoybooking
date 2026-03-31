@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 from flask import Flask, flash, jsonify, redirect, render_template, url_for
@@ -120,8 +121,9 @@ def create_app() -> Flask:
     return app
 
 
+app = create_app()
+
 if __name__ == "__main__":
-    app = create_app()
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", "5000")), debug=False)
 
 
