@@ -1,7 +1,9 @@
 import os
+import re
 
 from dotenv import load_dotenv
 from sqlalchemy.engine import URL
+from sqlalchemy.engine.url import make_url
 
 # Load environment variables from the project root `.env` (if present).
 # This makes it work even if you start `python app.py` from another directory.
@@ -47,7 +49,15 @@ class Config:
         or ""
     ).strip()
     if _raw_url:
-        SQLALCHEMY_DATABASE_URI = _raw_url.replace("mysql://", "mysql+pymysql://", 1)
+        _candidate_url = _raw_url.replace("mysql://", "mysql+pymysql://", 1)
+        try:
+            # Validate URL early to avoid Flask-SQLAlchemy init crash.
+            make_url(_candidate_url)
+            SQLALCHEMY_DATABASE_URI = _candidate_url
+        except Exception:
+            # Railway/Render sometimes provides malformed URL with empty port: host:/db
+            _fixed_url = re.sub(r"(@[^/:]+):/(?=[^/])", r"\1/", _candidate_url)
+            SQLALCHEMY_DATABASE_URI = _fixed_url
     else:
         _port = _env_int_or_none("HOYBOOKING_DB_PORT")
         SQLALCHEMY_DATABASE_URI = str(
