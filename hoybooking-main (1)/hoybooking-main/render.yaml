@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: hoybooking
+    env: python
+    plan: free
+    autoDeploy: true
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app.py
+    envVars:
+      - key: HOYBOOKING_SECRET_KEY
+        generateValue: true
+      - key: HOYBOOKING_DB_BACKEND
+        value: mysql
+      - key: HOYBOOKING_DATABASE_URL
+        sync: false
+      - key: HOYBOOKING_ADMIN_EMAIL
+        sync: false
+      - key: HOYBOOKING_ADMIN_PASSWORD
+        sync: false
+      - key: HOYBOOKING_ADMIN_NAME
+        value: Main Admin
+      - key: HOYBOOKING_ADMIN_RESET_ON_START
+        value: "false"

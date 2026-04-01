@@ -40,6 +40,7 @@ These columns are auto-added on startup if missing.
 - Create a **Web Service** from your GitHub repo.
 - Build command: `pip install -r requirements.txt`
 - Start command: `python app.py`
+- Or use Blueprint deploy with `render.yaml` for automatic service/env setup.
 - Set env vars in Render:
   - `HOYBOOKING_SECRET_KEY` = a long random value
   - `HOYBOOKING_DB_BACKEND` = `mysql` (if using Render MySQL)
