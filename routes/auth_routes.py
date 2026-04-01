@@ -8,6 +8,14 @@ from models.user import User
 auth_bp = Blueprint("auth", __name__)
 
 
+def _is_valid_password(user: User, password: str) -> bool:
+    try:
+        return bcrypt.check_password_hash(user.password, password)
+    except ValueError:
+        # Stored password is not a valid bcrypt hash (legacy/plain value).
+        return False
+
+
 @auth_bp.route("/register", methods=["GET", "POST"])
 def register():
     next_url = request.args.get("next") or ""
@@ -53,7 +61,7 @@ def login():
         from models.extensions import db  # keep imports local to avoid cycles in early startup
 
         user = User.query.filter_by(email=email).first()
-        if not user or not bcrypt.check_password_hash(user.password, password):
+        if not user or not _is_valid_password(user, password):
             flash("Invalid email or password.", "danger")
             return redirect(url_for("auth.login"))
         if user.role != "customer":
@@ -80,7 +88,7 @@ def admin_login():
         password = request.form.get("password") or ""
 
         user = User.query.filter_by(email=email).first()
-        if not user or not bcrypt.check_password_hash(user.password, password):
+        if not user or not _is_valid_password(user, password):
             flash("Invalid email or password.", "danger")
             return redirect(url_for("auth.admin_login", next=next_url))
         if user.role != "admin":
