@@ -1,6 +1,7 @@
 import os
 
 from dotenv import load_dotenv
+from sqlalchemy.engine import URL
 
 # Load environment variables from the project root `.env` (if present).
 # This makes it work even if you start `python app.py` from another directory.
@@ -17,6 +18,16 @@ def _env_int(name: str, default: int) -> int:
         return default
 
 
+def _env_int_or_none(name: str):
+    raw = (os.environ.get(name) or "").strip()
+    if not raw:
+        return None
+    try:
+        return int(raw)
+    except ValueError:
+        return None
+
+
 class Config:
     SECRET_KEY = os.environ.get("HOYBOOKING_SECRET_KEY", "dev-secret-change-me")
 
@@ -28,10 +39,27 @@ class Config:
     DB_NAME = os.environ.get("HOYBOOKING_DB_NAME", "hoybooking")
     DB_CHARSET = os.environ.get("HOYBOOKING_DB_CHARSET", "utf8mb4")
 
-    # SQLAlchemy will use PyMySQL as the MySQL driver.
-    SQLALCHEMY_DATABASE_URI = (
-        f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-        f"?charset={DB_CHARSET}"
-    )
+    # Prefer explicit app vars; fallback to Railway-provided MYSQL_URL style vars.
+    _raw_url = (
+        os.environ.get("HOYBOOKING_DATABASE_URL")
+        or os.environ.get("MYSQL_URL")
+        or os.environ.get("MYSQL_PUBLIC_URL")
+        or ""
+    ).strip()
+    if _raw_url:
+        SQLALCHEMY_DATABASE_URI = _raw_url.replace("mysql://", "mysql+pymysql://", 1)
+    else:
+        _port = _env_int_or_none("HOYBOOKING_DB_PORT")
+        SQLALCHEMY_DATABASE_URI = str(
+            URL.create(
+                drivername="mysql+pymysql",
+                username=DB_USER,
+                password=DB_PASSWORD,
+                host=DB_HOST,
+                port=_port,
+                database=DB_NAME,
+                query={"charset": DB_CHARSET},
+            )
+        )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
